@@ -27,10 +27,10 @@ export function activate(context: vscode.ExtensionContext) {
   //     .then((expr) => renderCallback(context, expr));
   // });
   // context.subscriptions.push(disposable);
-  // disposable = vscode.commands.registerCommand("vizx.lspRender", (expr) =>
-  //   renderCallback(context, expr)
-  // );
-  // context.subscriptions.push(disposable);
+  let disposable = vscode.commands.registerCommand("vizcar.lspRender", (expr) =>
+    renderCallback(context, expr)
+  );
+  context.subscriptions.push(disposable);
   // disposable = vscode.commands.registerCommand("vizx.activateRendering", () => {
   //   vscode.window.showInformationMessage(
   //     "Automatic rendering is now turned on."
@@ -49,64 +49,65 @@ export function activate(context: vscode.ExtensionContext) {
   // context.subscriptions.push(disposable);
 }
 
-// function renderCallback(context: vscode.ExtensionContext, expr: any) {
-//   {
-//     if (expr === undefined) {
-//       console.log("no expression to be rendered");
-//       return;
-//     }
+function renderCallback(context: vscode.ExtensionContext, expr: any) {
+    if (expr === undefined) {
+      console.log("no expression to be rendered");
+      return;
+    }
+    // console.log("expr whole: ", JSON.stringify(expr));
+    // extract correct field from lsp information
+    let goal = expr.goals.goals[0].ty.toString();
+    let hyps = expr.goals.goals[0].hyps;
+    console.log("goal: ", goal);
+    console.log("hyps: ", hyps.toString());
+    let var_ctx = parser.context(hyps);
+    console.log("var ctx: ", var_ctx);
+  // console.log("---------LEXED------------");
+  // lex.lexerPrettyPrinter(expr);
+  // console.log("---------LEXED------------");
 
-//     console.log("expr whole: ", JSON.stringify(expr));
-//     // extract correct field from lsp information
-//     expr = expr.goals.goals[0].ty.toString();
-//   }
-//   console.log("expr: ", expr);
-//   console.log("---------LEXED------------");
-//   lex.lexerPrettyPrinter(expr);
-//   console.log("---------LEXED------------");
-
-//   let node: ast.ASTNode;
-//   try {
-//     node = parser.parseAST(expr);
-//     node = sizer.addSizes(node);
-//     console.log("sized node: ", node);
-//     const size = sizer.determineCanvasWidthHeight(node);
-//     setCanvasWidthHeight(size);
-//     node = coord.addCoords(node, boundary);
-//   } catch (e) {
-//     vscode.window.showErrorMessage(
-//       `Error rendering your expression (${expr}): ${e}`
-//     );
-//     return;
-//   }
-//   if (openWebview !== undefined) {
-//     openWebview.dispose();
-//   }
-//   const panel = vscode.window.createWebviewPanel(
-//     "ViZX",
-//     `ViZX: ${expr}`,
-//     {
-//       viewColumn: vscode.ViewColumn.Three,
-//       preserveFocus: true,
-//     },
-//     {
-//       enableScripts: true,
-//       retainContextWhenHidden: true,
-//     }
-//   );
-//   panel.onDidDispose(
-//     async () => {
-//       console.log("openWebview before: ", openWebview);
-//       openWebview = undefined;
-//     },
-//     null,
-//     context.subscriptions
-//   );
-//   openWebview = panel;
-//   panel.webview.html = getCanvasHtml(panel, context);
-//   panel.webview.onDidReceiveMessage((msg) => console.log(msg));
-//   panel.webview.postMessage({ command: JSON.stringify(node) });
-// }
+  // let node: ast.ASTNode;
+  // try {
+  //   node = parser.parseAST(expr);
+  //   node = sizer.addSizes(node);
+  //   console.log("sized node: ", node);
+  //   const size = sizer.determineCanvasWidthHeight(node);
+  //   setCanvasWidthHeight(size);
+  //   node = coord.addCoords(node, boundary);
+  // } catch (e) {
+  //   vscode.window.showErrorMessage(
+  //     `Error rendering your expression (${expr}): ${e}`
+  //   );
+  //   return;
+  // }
+  // if (openWebview !== undefined) {
+  //   openWebview.dispose();
+  // }
+  // const panel = vscode.window.createWebviewPanel(
+  //   "ViZX",
+  //   `ViZX: ${expr}`,
+  //   {
+  //     viewColumn: vscode.ViewColumn.Three,
+  //     preserveFocus: true,
+  //   },
+  //   {
+  //     enableScripts: true,
+  //     retainContextWhenHidden: true,
+  //   }
+  // );
+  // panel.onDidDispose(
+  //   async () => {
+  //     console.log("openWebview before: ", openWebview);
+  //     openWebview = undefined;
+  //   },
+  //   null,
+  //   context.subscriptions
+  // );
+  // openWebview = panel;
+  // panel.webview.html = getCanvasHtml(panel, context);
+  // panel.webview.onDidReceiveMessage((msg) => console.log(msg));
+  // panel.webview.postMessage({ command: JSON.stringify(node) });
+}
 
 // this method is called when your extension is deactivated
 export function deactivate() {}

@@ -3,6 +3,7 @@ dist
 node_modules
 .vscode-test/
 *.vsix
+!coq-lsp-0.1.9-dev.vsix
 examples.txt
 .DS_Store
 example.json
