@@ -12,34 +12,41 @@ export interface Variable {
   value?: string;
 }
 
-export interface ASTCategory extends ASTNode, Variable {
+export interface ASTCategory extends ASTNode {}
+
+export interface ASTMorphism extends ASTNode {
+  morph_input?: ASTCategory;
+  morph_output?: ASTCategory;
+}
+
+export interface ASTProp extends ASTNode {}
+
+export interface ASTCategoryVar extends ASTCategory, Variable {
   kind: "Category";
 }
 
-export interface ASTMorphism extends ASTNode, Variable {
+export interface ASTMorphismVar extends ASTMorphism, Variable {
   kind: "Morphism";
-  input?: ASTCategory;
-  output?: ASTCategory;
 }
 
-export interface ASTMorphismEquivalence extends ASTNode {
+export interface ASTMorphismEquivalence extends ASTProp {
   kind: "MorphismEquivalence";
   left: ASTMorphism;
   right: ASTMorphism;
 }
 
-export interface ASTCompose extends ASTNode {
+export interface ASTCompose extends ASTMorphism {
   kind: "Compose";
   left: ASTMorphism;
   right: ASTMorphism;
 }
 
-export interface ASTIdentityMorphism extends ASTNode {
+export interface ASTIdentityMorphism extends ASTMorphism {
   kind: "IdentityMorphism";
-  morph: ASTMorphism;
+  cat: ASTCategory;
 }
 
-export interface ASTInverse extends ASTNode {
+export interface ASTInverse extends ASTMorphism {
   kind: "Inverse";
   morph: ASTMorphism;
 }

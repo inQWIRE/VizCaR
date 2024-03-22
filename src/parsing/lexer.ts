@@ -8,6 +8,7 @@ export enum TokenKind {
   ArrowEquivToken,
   ComposeToken,
   InverseToken,
+  IdentityMorphismToken,
 
   LParen,
   RParen,
@@ -25,7 +26,11 @@ export const lexer = buildLexer([
   [true, new RegExp(`\^[${c.MORPH_EQUIV}]`, "g"), TokenKind.ArrowEquivToken],
   [true, new RegExp(`\^[${c.COMPOSE}]`, "g"), TokenKind.ComposeToken],
   [true, new RegExp(`\^[${c.INVERSE}]`, "g"), TokenKind.InverseToken],
-
+  [
+    true,
+    new RegExp(`\^[${c.IDENTITY_MORPHISM}]`, "g"),
+    TokenKind.IdentityMorphismToken,
+  ],
   [false, /^\s+/g, TokenKind.Space],
 ]);
 // export enum TokenKind {

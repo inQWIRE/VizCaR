@@ -50,18 +50,18 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 function renderCallback(context: vscode.ExtensionContext, expr: any) {
-    if (expr === undefined) {
-      console.log("no expression to be rendered");
-      return;
-    }
-    // console.log("expr whole: ", JSON.stringify(expr));
-    // extract correct field from lsp information
-    let goal = expr.goals.goals[0].ty.toString();
-    let hyps = expr.goals.goals[0].hyps;
-    console.log("goal: ", goal);
-    console.log("hyps: ", hyps.toString());
-    let var_ctx = parser.context(hyps);
-    console.log("var ctx: ", var_ctx);
+  if (expr === undefined) {
+    console.log("no expression to be rendered");
+    return;
+  }
+  // console.log("expr whole: ", JSON.stringify(expr));
+  // extract correct field from lsp information
+  let goal = expr.goals.goals[0].ty.toString();
+  let hyps = expr.goals.goals[0].hyps;
+  console.log("goal: ", goal);
+  console.log("hyps: ", hyps.toString());
+  let var_ctx = parser.context(hyps);
+  console.log("var ctx: ", var_ctx);
   // console.log("---------LEXED------------");
   // lex.lexerPrettyPrinter(expr);
   // console.log("---------LEXED------------");

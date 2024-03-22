@@ -622,42 +622,165 @@ type Token = psec.Token<lex.TokenKind>;
 // //   return list_tokens;
 // // }
 
-const CATEGORY = rule<lex.TokenKind, ast.ASTNode>();
+// ******************* RULES **********************
+let Γ: undefined | Map<string, ast.ASTNode> = undefined;
+const CATEGORY_VAR = rule<lex.TokenKind, ast.ASTCategoryVar>();
+const MORPHISM_VAR = rule<lex.TokenKind, ast.ASTMorphismVar>();
+const COMPOSE = rule<lex.TokenKind, ast.ASTCompose>();
+const IDENTITY_MORPH = rule<lex.TokenKind, ast.ASTIdentityMorphism>();
+const INVERSE = rule<lex.TokenKind, ast.ASTInverse>();
 
-// CATEGORY.setPattern(
-//   apply(
-//     ,
-//     applyCat
-//   )
-// );
+const MORPH_EQUIV = rule<lex.TokenKind, ast.ASTMorphismEquivalence>();
 
+// change when more TODO
+let CATEGORY = rule<lex.TokenKind, ast.ASTCategory>();
+const MORPHISM = rule<lex.TokenKind, ast.ASTMorphism>();
+const PROP = rule<lex.TokenKind, ast.ASTProp>();
+
+function applyCategoryVar(
+  Γ: Map<string, ast.ASTNode> | undefined,
+  tok: Token
+): ast.ASTCategoryVar {
+  let v = tok.text;
+  if (Γ !== undefined) {
+    let ctx_node = Γ.get(v);
+    if (ctx_node !== undefined && ctx_node.kind !== "Category") {
+      // TODO
+      throw new Error("explicitly not a category in ctx!!");
+    }
+  }
+  return {
+    kind: "Category",
+    name: v,
+  };
+}
+
+function applyMorphismVar(
+  Γ: Map<string, ast.ASTNode> | undefined,
+  tok: Token
+): ast.ASTMorphismVar {
+  let v = tok.text;
+  if (Γ !== undefined) {
+    let ctx_node = Γ.get(v);
+    if (ctx_node !== undefined && ctx_node.kind !== "Morphism") {
+      // TODO
+      throw new Error("explicitly not a morphism in ctx!!");
+    }
+    if (ctx_node !== undefined) {
+      return ctx_node as ast.ASTMorphismVar;
+    }
+  }
+  return {
+    kind: "Morphism",
+    name: v,
+  };
+}
+
+function applyCompose(
+  args: [ast.ASTMorphism, Token, ast.ASTMorphism]
+): ast.ASTCompose {
+  let node: ast.ASTCompose = {
+    kind: "Compose",
+    left: args[0],
+    right: args[2],
+  };
+  if (args[0].morph_input && args[2].morph_output) {
+    node.morph_input = args[0].morph_input;
+    node.morph_output = args[2].morph_output;
+  }
+  return node;
+}
+
+function applyIdentityMorphism(
+  args: [Token, ast.ASTCategory]
+): ast.ASTIdentityMorphism {
+  return {
+    kind: "IdentityMorphism",
+    cat: args[1],
+    morph_input: args[1],
+    morph_output: args[1],
+  };
+}
+
+function applyInverse(args: [ast.ASTMorphism, Token]): ast.ASTInverse {
+  let node: ast.ASTInverse = {
+    kind: "Inverse",
+    morph: args[0],
+  };
+  if (args[0].morph_input && args[0].morph_output) {
+    node.morph_input = args[0].morph_output;
+    node.morph_output = args[0].morph_input;
+  }
+  return node;
+}
+
+function applyMorphEquiv(
+  args: [ast.ASTNode, Token, ast.ASTNode]
+): ast.ASTMorphismEquivalence {
+  return {
+    kind: "MorphismEquivalence",
+    left: args[0],
+    right: args[2],
+  };
+}
+
+// HOW TO HANDLE ERRORS? where do i catch 'em?? need some sort of "run"
+
+CATEGORY_VAR.setPattern(
+  apply(tok(lex.TokenKind.VarToken), applyCategoryVar.bind(null, Γ))
+);
+
+CATEGORY = CATEGORY_VAR;
+
+MORPHISM_VAR.setPattern(
+  apply(tok(lex.TokenKind.VarToken), applyMorphismVar.bind(null, Γ))
+);
+
+IDENTITY_MORPH.setPattern(
+  apply(
+    seq(tok(lex.TokenKind.IdentityMorphismToken), CATEGORY),
+    applyIdentityMorphism
+  )
+);
+
+// todo lrec
+INVERSE.setPattern(
+  apply(
+    seq(alt(IDENTITY_MORPH, MORPHISM_VAR), tok(lex.TokenKind.InverseToken)),
+    applyInverse
+  )
+);
+
+// *********************** HYPOTHESIS PARSING ***********************
+
+// we don't care about type "Type" etc bc too much work and also not useful
 export function astNodeFromCatString(str: string): ast.ASTNode | undefined {
   if (str.startsWith("Category")) {
     let cat = str.slice("Category ".length);
-    return { kind: "Category", name: cat } as ast.ASTCategory;
+    return { kind: "Category", name: cat } as ast.ASTCategoryVar;
   }
 
   if (str.includes(c.MORPHISM)) {
     let from = str.slice(0, str.indexOf(c.MORPHISM)).replace(" ", "");
-    let fromcat: ast.ASTCategory = { kind: "Category", name: from };
+    let fromcat: ast.ASTCategoryVar = { kind: "Category", name: from };
     let to = str
       .slice(str.indexOf(c.MORPHISM) + c.MORPHISM.length)
       .replace(" ", "");
-    let tocat: ast.ASTCategory = { kind: "Category", name: to };
+    let tocat: ast.ASTCategoryVar = { kind: "Category", name: to };
     return {
       kind: "Morphism",
-      input: fromcat,
-      output: tocat,
+      morph_input: fromcat,
+      morph_output: tocat,
     } as ast.ASTMorphism;
   }
 
   if (str.includes(c.MORPH_EQUIV)) {
     let from = str.slice(0, str.indexOf(c.MORPHISM)).replace(" ", "");
-    let fromMorph: ast.ASTMorphism = { kind: "Morphism", name: from };
+    let fromMorph: ast.ASTMorphismVar = { kind: "Morphism", name: from };
     let to = str
       .slice(str.indexOf(c.MORPH_EQUIV) + c.MORPH_EQUIV.length)
       .replace(" ", "");
-    let toMorph: ast.ASTMorphism = { kind: "Morphism", name: to };
+    let toMorph: ast.ASTMorphismVar = { kind: "Morphism", name: to };
     return {
       kind: "MorphismEquivalence",
       left: fromMorph,
@@ -667,11 +790,11 @@ export function astNodeFromCatString(str: string): ast.ASTNode | undefined {
 
   if (str.includes(c.COMPOSE)) {
     let from = str.slice(0, str.indexOf(c.COMPOSE)).replace(" ", "");
-    let fromMorph: ast.ASTMorphism = { kind: "Morphism", name: from };
+    let fromMorph: ast.ASTMorphismVar = { kind: "Morphism", name: from };
     let to = str
       .slice(str.indexOf(c.COMPOSE) + c.COMPOSE.length)
       .replace(" ", "");
-    let toMorph: ast.ASTMorphism = { kind: "Morphism", name: to };
+    let toMorph: ast.ASTMorphismVar = { kind: "Morphism", name: to };
     return {
       kind: "Compose",
       left: fromMorph,
@@ -683,16 +806,23 @@ export function astNodeFromCatString(str: string): ast.ASTNode | undefined {
 }
 
 export function context(expr: any): Map<string, ast.ASTNode> {
-  let context = new Map<string, ast.ASTNode>();
+  let Γ = new Map<string, ast.ASTNode>();
   expr.map((hyp: { names: any[]; ty: string }) =>
     hyp.names.map((name: string) => {
       let node = astNodeFromCatString(hyp.ty);
       if (node !== undefined) {
-        context.set(name, node);
+        Γ.set(name, node);
       }
     })
   );
-  return context;
+  return Γ;
+}
+
+export function parseAST(expr: string): ast.ASTNode {
+  Γ = context(expr);
+  let parsed = expectEOF(PROP.parse(lex.lexer.parse(expr)));
+  // some way of saying "throw away only the ones that error, but don't throw away the entire thing if it errors."
+  return expectSingleResult(parsed);
 }
 
 // export function parseAST(expr: string): ast.ASTNode {

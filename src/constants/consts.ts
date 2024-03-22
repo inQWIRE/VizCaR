@@ -12,13 +12,16 @@
 // unit
 // counit
 
+// higher level = binds stronger
+
 // Category
-export const ISOMORPHISM = "<~>";
-export const MORPHISM = "~>";
-export const MORPH_EQUIV = "≃";
-export const CAT_EQUIV = "≅";
-export const COMPOSE = "∘";
-export const INVERSE = "^-1";
+export const ISOMORPHISM = "<~>"; // level 70
+export const MORPHISM = "~>"; // level 60
+export const MORPH_EQUIV = "≃"; // at level 70
+export const CAT_EQUIV = "≅"; // level 70
+export const COMPOSE = "∘"; // level 65
+export const INVERSE = "^-1"; // level 25
+export const IDENTITY_MORPHISM = "id_"; // level 15
 
 // Monoidal
 export const CAT_TENSOR = "×";
