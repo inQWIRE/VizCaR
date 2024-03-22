@@ -6,7 +6,7 @@ export let SCALE = 100;
 export let LINE_WIDTH = SCALE / 200;
 export let BASE_SIZE = 1 * SCALE;
 export let PAD_SIZE = 0.1 * SCALE;
-export let PROPTO_SIZE = 0.2 * SCALE;
+export let MORPH_EQUIV_SIZE = 0.2 * SCALE;
 export let CAST_SIZE = 0.3 * SCALE;
 export let TEXT_PAD_SIZE = 0.08 * SCALE;
 export let DOTS_PAD_SIZE = 0.1 * SCALE;
@@ -22,7 +22,7 @@ export let VER_PAD = 0.1 * SCALE;
 export let STACK_DASH: [number, number] = [0.06 * SCALE, 0.06 * SCALE];
 export let COMPOSE_DASH: [number, number] = [0.16 * SCALE, 0.16 * SCALE];
 export let CAST_DASH: [number, number] = [0.02 * SCALE, 0.02 * SCALE];
-export let PROPTO_DASH: [number, number] = [0.005 * SCALE, 0.005 * SCALE];
+export let MORPH_EQUIV_DASH: [number, number] = [0.005 * SCALE, 0.005 * SCALE];
 export let FUNCTION_DASH: [number, number] = [0.03 * SCALE, 0.01 * SCALE];
 
 export let boundary = {

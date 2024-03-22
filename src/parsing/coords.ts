@@ -1,71 +1,215 @@
-// import * as ast from "./ast";
-// import { NUMBER_KINDS } from "../constants/consts";
-// import {
-//   FUNC_ARG_SIZE,
-//   CAST_SIZE,
-//   PAD_SIZE,
-// } from "../constants/variableconsts";
-// import { quad, coord } from "../constants/types";
+import * as ast from "./ast";
+import {
+  FUNC_ARG_SIZE,
+  CAST_SIZE,
+  PAD_SIZE,
+} from "../constants/variableconsts";
+import { quad, coord } from "../constants/types";
 
-// export function findCenter(q: quad): coord {
-//   return {
-//     x: q.tl.x + (q.tr.x - q.tl.x) / 2,
-//     y: q.tl.y + (q.bl.y - q.tl.y) / 2,
-//   } as coord;
-// }
+export function findCenter(q: quad): coord {
+  return {
+    x: q.tl.x + (q.tr.x - q.tl.x) / 2,
+    y: q.tl.y + (q.bl.y - q.tl.y) / 2,
+  } as coord;
+}
 
-// export function findTopCenter(q: quad): coord {
-//   return {
-//     x: q.tl.x + (q.tr.x - q.tl.x) / 2,
-//     y: q.tl.y,
-//   } as coord;
-// }
+export function findTopCenter(q: quad): coord {
+  return {
+    x: q.tl.x + (q.tr.x - q.tl.x) / 2,
+    y: q.tl.y,
+  } as coord;
+}
 
-// export function findBottomCenter(q: quad): coord {
-//   return {
-//     x: q.bl.x + (q.br.x - q.bl.x) / 2,
-//     y: q.bl.y,
-//   } as coord;
-// }
+export function findBottomCenter(q: quad): coord {
+  return {
+    x: q.bl.x + (q.br.x - q.bl.x) / 2,
+    y: q.bl.y,
+  } as coord;
+}
 
-// export function findLeftCenter(q: quad): coord {
-//   return {
-//     x: q.tl.x,
-//     y: q.tl.y + (q.bl.y - q.tl.y) / 2,
-//   } as coord;
-// }
+export function findLeftCenter(q: quad): coord {
+  return {
+    x: q.tl.x,
+    y: q.tl.y + (q.bl.y - q.tl.y) / 2,
+  } as coord;
+}
 
-// export function findRightCenter(q: quad): coord {
-//   return {
-//     x: q.tr.x,
-//     y: q.tr.y + (q.br.y - q.tr.y) / 2,
-//   } as coord;
-// }
+export function findRightCenter(q: quad): coord {
+  return {
+    x: q.tr.x,
+    y: q.tr.y + (q.br.y - q.tr.y) / 2,
+  } as coord;
+}
 
-// export function makeAtCenter(
-//   center: coord,
-//   hor_len: number,
-//   ver_len: number
-// ): quad {
-//   return {
-//     tl: {
-//       x: center.x - hor_len / 2,
-//       y: center.y - ver_len / 2,
-//     },
-//     tr: {
-//       x: center.x + hor_len / 2,
-//       y: center.y - ver_len / 2,
-//     },
-//     bl: {
-//       x: center.x - hor_len / 2,
-//       y: center.y + ver_len / 2,
-//     },
-//     br: {
-//       x: center.x + hor_len / 2,
-//       y: center.y + ver_len / 2,
-//     },
-//   };
-// }
+export function makeAtCenter(
+  center: coord,
+  hor_len: number,
+  ver_len: number
+): quad {
+  return {
+    tl: {
+      x: center.x - hor_len / 2,
+      y: center.y - ver_len / 2,
+    },
+    tr: {
+      x: center.x + hor_len / 2,
+      y: center.y - ver_len / 2,
+    },
+    bl: {
+      x: center.x - hor_len / 2,
+      y: center.y + ver_len / 2,
+    },
+    br: {
+      x: center.x + hor_len / 2,
+      y: center.y + ver_len / 2,
+    },
+  };
+}
+
+export function addCoords(node: ast.ASTNode, boundary: quad): ast.ASTNode {
+  switch (node.kind) {
+    case "Category": {
+      break;
+    }
+    case "Morphism": {
+      node.boundary = makeAtCenter(
+        findCenter(boundary),
+        node.hor_len!,
+        node.ver_len!
+      );
+      return node;
+    }
+    case "Isomorphism": {
+      node.boundary = makeAtCenter(
+        findCenter(boundary),
+        node.hor_len!,
+        node.ver_len!
+      );
+      return node;
+    }
+    case "IdentityMorphism": {
+      node.boundary = makeAtCenter(
+        findCenter(boundary),
+        node.hor_len!,
+        node.ver_len!
+      );
+      return node;
+    }
+    case "Inverse": {
+      node.boundary = makeAtCenter(
+        findCenter(boundary),
+        node.hor_len!,
+        node.ver_len!
+      );
+      return node;
+    }
+    case "Compose": {
+      let node_ = <ast.ASTCompose>node;
+      let l_hor = node_.left.hor_len!;
+      let r_hor = node_.right.hor_len!;
+      node_.boundary = makeAtCenter(
+        findCenter(boundary),
+        node.hor_len!,
+        node.ver_len!
+      );
+      let l_bound = {
+        tl: {
+          x: node_.boundary.tl.x + PAD_SIZE,
+          y: node_.boundary.tl.y + PAD_SIZE,
+        },
+        tr: {
+          x: node_.boundary.tl.x + l_hor + PAD_SIZE,
+          y: node_.boundary.tl.y + PAD_SIZE,
+        },
+        bl: {
+          x: node_.boundary.bl.x + PAD_SIZE,
+          y: node_.boundary.bl.y - PAD_SIZE,
+        },
+        br: {
+          x: node_.boundary.tl.x + l_hor + PAD_SIZE,
+          y: node_.boundary.bl.y - PAD_SIZE,
+        },
+      } as quad;
+      // console.log("l_bound: ", l_bound);
+      let r_bound = {
+        tl: {
+          x: node_.boundary.tr.x - r_hor - PAD_SIZE,
+          y: node_.boundary.tr.y + PAD_SIZE,
+        },
+        tr: {
+          x: node_.boundary.tr.x - PAD_SIZE,
+          y: node_.boundary.tr.y + PAD_SIZE,
+        },
+        bl: {
+          x: node_.boundary.br.x - r_hor - PAD_SIZE,
+          y: node_.boundary.bl.y - PAD_SIZE,
+        },
+        br: {
+          x: node_.boundary.br.x - PAD_SIZE,
+          y: node_.boundary.br.y - PAD_SIZE,
+        },
+      } as quad;
+      // console.log("r_bound: ", r_bound);
+      node_.left = addCoords(node_.left, l_bound);
+      node_.right = addCoords(node_.right, r_bound);
+      return node_;
+    }
+    case "MorphismEquivalence": {
+      let node_ = <ast.ASTMorphismEquivalence>node;
+      let l_hor = node_.left.hor_len!;
+      let r_hor = node_.right.hor_len!;
+      node_.boundary = makeAtCenter(
+        findCenter(boundary),
+        node.hor_len!,
+        node.ver_len!
+      );
+      let l_bound = {
+        tl: {
+          x: node_.boundary.tl.x + PAD_SIZE,
+          y: node_.boundary.tl.y + PAD_SIZE,
+        },
+        tr: {
+          x: node_.boundary.tl.x + l_hor + PAD_SIZE,
+          y: node_.boundary.tl.y + PAD_SIZE,
+        },
+        bl: {
+          x: node_.boundary.bl.x + PAD_SIZE,
+          y: node_.boundary.bl.y - PAD_SIZE,
+        },
+        br: {
+          x: node_.boundary.tl.x + l_hor + PAD_SIZE,
+          y: node_.boundary.bl.y - PAD_SIZE,
+        },
+      } as quad;
+      // console.log("l_bound: ", l_bound);
+      let r_bound = {
+        tl: {
+          x: node_.boundary.tr.x - r_hor - PAD_SIZE,
+          y: node_.boundary.tr.y + PAD_SIZE,
+        },
+        tr: {
+          x: node_.boundary.tr.x - PAD_SIZE,
+          y: node_.boundary.tr.y + PAD_SIZE,
+        },
+        bl: {
+          x: node_.boundary.br.x - r_hor - PAD_SIZE,
+          y: node_.boundary.bl.y - PAD_SIZE,
+        },
+        br: {
+          x: node_.boundary.br.x - PAD_SIZE,
+          y: node_.boundary.br.y - PAD_SIZE,
+        },
+      } as quad;
+      node_.left = addCoords(node_.left, l_bound);
+      node_.right = addCoords(node_.right, r_bound);
+      return node_;
+    }
+    default: {
+      throw new Error(`unidentifiable node ${node} in addCoords`);
+    }
+  }
+  throw new Error("unreachable");
+}
 
 // export function addCoords(node: ast.ASTNode, boundary: quad): ast.ASTNode {
 //   switch (node.kind) {
