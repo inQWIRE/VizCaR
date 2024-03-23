@@ -24,15 +24,20 @@ type Token = psec.Token<lex.TokenKind>;
 
 // ******************* RULES **********************
 let Γ: undefined | Map<string, ASTNode> = undefined;
+let errorNode: Morph = {
+  type: "MorphVar", 
+  name: "error"
+};
 
 // ********************** OBJECTS **********************
 
 const CAT_OBJECT_L0 = rule<lex.TokenKind, CatObject>();
 const CAT_OBJECT_L40 = rule<lex.TokenKind, CatObject>();
-const ISOMORPH_L0 = rule<lex.TokenKind, Isomorph>();
-const ISOMORPH_L30 = rule<lex.TokenKind, Isomorph>();
-const ISOMORPH_L39 = rule<lex.TokenKind, Isomorph>();
-const MORPH = rule<lex.TokenKind, Morph>();
+const ISOMORPH = rule<lex.TokenKind, Morph>();
+const MORPH_L0 = rule<lex.TokenKind, Morph>();
+const MORPH_L25 = rule<lex.TokenKind, Morph>();
+const MORPH_L40 = rule<lex.TokenKind, Morph>();
+const MORPH_L65 = rule<lex.TokenKind, Morph>();
 const PROP = rule<lex.TokenKind, Prop>();
 
 function applyObjectVar(tok: Token): CatObject {
@@ -73,186 +78,197 @@ CAT_OBJECT_L40.setPattern(
   )
 );
 
-// const CATEGORY_VAR = rule<lex.Tokentype, ast.ASTCategory>();
-// const MORPHISM_VAR = rule<lex.Tokentype, ast.ASTMorphism>();
-// const COMPOSE = rule<lex.Tokentype, ast.ASTMorphism>();
-// const IDENTITY_MORPH = rule<lex.Tokentype, ast.ASTMorphism>();
-// const INVERSE = rule<lex.Tokentype, ast.ASTMorphism>();
-// const MORPH_EQUIV = rule<lex.Tokentype, ast.ASTProp>();
+function applyIsomorphismVar(
+  Γ: Map<string, ASTNode> | undefined,
+  tok: Token
+): Morph {
+  let v = tok.text;
+  if (Γ !== undefined) {
+    let ctx_node = Γ.get(v);
+    if (ctx_node !== undefined && ctx_node.type !== "Isomorphism") {
+      // TODO
+      return errorNode;
+    }
+    if (ctx_node !== undefined) {
+      return ctx_node;
+    }
+  }
+  return {
+    type: "Isomorphism", 
+    i : {
+      type: "IsomorphVar",
+      name: v,
+    }
+  };
+}
 
-// // change when more TODO
-// let CATEGORY = rule<lex.Tokentype, ast.ASTNode>();
-// let MORPHISM = rule<lex.Tokentype, ast.ASTNode>();
-// let PROP = rule<lex.Tokentype, ast.ASTNode>();
+function applyLeftUnitor(a: CatObject): Morph {
+  return {
+    type: "Isomorphism", 
+    i : {
+      type: "LeftUnitor",
+      a,
+    }
+  };
+}
 
-// function applyCategoryVar(
-//   Γ: Map<string, ast.ASTNode> | undefined,
-//   tok: Token
-// ): ast.ASTCategoryVar {
-//   let v = tok.text;
-//   if (Γ) {
-//     let ctx_node = Γ.get(v);
-//     if (ctx_node !== undefined && ctx_node.type !== "Category") {
-//       // TODO
-//       throw new Error("explicitly not a category in ctx!!");
-//     }
-//   }
-//   return {
-//     type: "Category",
-//     name: v,
-//   };
-// }
+function applyRightUnitor(a: CatObject): Morph {
+  return {
+    type: "Isomorphism", 
+    i : {
+      type: "RightUnitor",
+      a,
+    }
+  };
+}
 
-// function applyMorphismVar(
-//   Γ: Map<string, ast.ASTNode> | undefined,
-//   tok: Token
-// ): ast.ASTMorphism {
-//   let v = tok.text;
-//   if (Γ !== undefined) {
-//     let ctx_node = Γ.get(v);
-//     if (
-//       ctx_node !== undefined &&
-//       ctx_node.type !== "Morphism" &&
-//       ctx_node.type !== "Isomorphism"
-//     ) {
-//       // TODO
-//       throw new Error("explicitly not a morphism in ctx!!");
-//     }
-//     if (ctx_node !== undefined) {
-//       if (ctx_node.type === "Isomorphism") {
-//         return ctx_node as ast.ASTIsomorphism;
-//       }
-//       return ctx_node as ast.ASTMorphismVar;
-//     }
-//   }
-//   return {
-//     type: "Morphism",
-//     name: v,
-//   } as ast.ASTMorphismVar;
-// }
+function applyBraiding(args: [CatObject, CatObject]) : Morph {
+  return {
+    type: "Isomorphism",
+    i: {
+      type: "Braiding",
+      x: args[0],
+      y: args[1],
+    }
+  };
+}
 
-// function applyCompose(
-//   left: ast.ASTMorphism,
-//   right: ast.ASTMorphism
-// ): ast.ASTCompose {
-//   let node: ast.ASTCompose = {
-//     type: "Compose",
-//     left: left,
-//     right: right,
-//   };
-//   if (left.morph_input && right.morph_output) {
-//     node.morph_input = left.morph_input;
-//     node.morph_output = right.morph_output;
-//   }
-//   return node;
-// }
+ISOMORPH.setPattern(
+  alt(
+    apply(
+      tok(lex.TokenKind.VarToken), applyIsomorphismVar.bind(null, Γ)
+      ),
+    apply(
+      kright(tok(lex.TokenKind.LeftUnitorToken), CAT_OBJECT_L40),
+      applyLeftUnitor
+    ),
+    apply(
+      kright(tok(lex.TokenKind.RightUnitorToken), CAT_OBJECT_L40),
+      applyRightUnitor
+    ),
+    apply(
+      seq(
+        kright(tok(lex.TokenKind.BraidToken), CAT_OBJECT_L40),
+        kright(tok(lex.TokenKind.Comma), CAT_OBJECT_L40)
+      ),
+      applyBraiding
+    )
+  )
+);
 
-// function applyIdentityMorphism(
-//   args: [Token, ast.ASTCategory]
-// ): ast.ASTIdentityMorphism {
-//   return {
-//     type: "IdentityMorphism",
-//     cat: args[1],
-//     morph_input: args[1],
-//     morph_output: args[1],
-//   };
-// }
+function applyMorphismVar(
+  Γ: Map<string, ASTNode> | undefined,
+  tok: Token
+): Morph {
+  let v = tok.text;
+  if (Γ !== undefined) {
+    let ctx_node = Γ.get(v);
+    if (ctx_node !== undefined && ctx_node.type !== "MorphVar") {
+      // TODO
+      return errorNode;
+      // throw new Error("explicitly not a morphism in ctx!!");
+    }
+    if (ctx_node !== undefined) {
+      return ctx_node;
+    }
+  }
+  return {
+    type: "MorphVar",
+    name: v,
+  };
+}
 
-// function applyInverse(fst: ast.ASTMorphism, _: Token): ast.ASTInverse {
-//   let node: ast.ASTInverse = {
-//     type: "Inverse",
-//     morph: fst,
-//   };
-//   if (fst.morph_input && fst.morph_output) {
-//     node.morph_input = fst.morph_output;
-//     node.morph_output = fst.morph_input;
-//   }
-//   return node;
-// }
+function applyMorphismId(cat: CatObject): Morph {
+  return {
+    type: "MorphId",
+    cat,
+  };
+}
 
-// function applyMorphEquiv(
-//   args: [ast.ASTNode, Token, ast.ASTNode]
-// ): ast.ASTMorphismEquivalence {
-//   return {
-//     type: "MorphismEquivalence",
-//     left: args[0],
-//     right: args[2],
-//   };
-// }
+function applyMorphismInv(on: Morph): Morph {
+  return {
+    type: "MorphInv",
+    on,
+  };
+}
 
-// // HOW TO HANDLE ERRORS? where do i catch 'em?? need some sort of "run"
+function applyMorphismCompose(l: Morph, r: Morph): Morph {
+  return {
+    type: "MorphCompose",
+    l,
+    r,
+  };
+}
 
-// CATEGORY_VAR.setPattern(
-//   alt(
-//     apply(tok(lex.Tokentype.VarToken), applyCategoryVar.bind(null, Γ)),
-//     CATEGORY
-//   )
-// );
+function applyMorphismTensor(l: Morph, r: Morph): Morph {
+  return {
+    type: "MorphTensor",
+    l,
+    r,
+  };
+}
 
-// CATEGORY = CATEGORY_VAR;
+function applyMorphismDagger(f: Morph): Morph {
+  return {
+    type: "MorphDagger",
+    f,
+  };
+}
 
-// MORPHISM_VAR.setPattern(
-//   alt(
-//     apply(tok(lex.Tokentype.VarToken), applyMorphismVar.bind(null, Γ)),
-//     MORPHISM
-//   )
-// );
+MORPH_L0.setPattern(
+  alt(
+    apply(tok(lex.TokenKind.VarToken), applyMorphismVar.bind(null, Γ)),
+    ISOMORPH,
+    apply(
+      kright(tok(lex.TokenKind.IdentityMorphismToken), CAT_OBJECT_L40),
+      applyMorphismId
+    )
+  )
+);
 
-// IDENTITY_MORPH.setPattern(
-//   apply(
-//     seq(tok(lex.Tokentype.IdentityMorphismToken), CATEGORY),
-//     applyIdentityMorphism
-//   )
-// );
+MORPH_L25.setPattern(
+  lrec_sc(
+    MORPH_L0,
+    kright(tok(lex.TokenKind.InverseToken), MORPH_L0),
+    applyMorphismInv
+  )
+);
 
-// INVERSE.setPattern(
-//   lrec_sc(
-//     alt(IDENTITY_MORPH, MORPHISM_VAR),
-//     tok(lex.Tokentype.InverseToken),
-//     applyInverse
-//   )
-// );
+MORPH_L40.setPattern(
+  lrec_sc(
+    MORPH_L25,
+    kright(tok(lex.TokenKind.MorphismTensorToken), MORPH_L25),
+    applyMorphismTensor
+  )
+);
 
-// COMPOSE.setPattern(
-//   lrec_sc(
-//     INVERSE,
-//     kright(tok(lex.Tokentype.ComposeToken), INVERSE),
-//     applyCompose
-//   )
-// );
+MORPH_L65.setPattern(
+  lrec_sc(
+    MORPH_L40,
+    kright(tok(lex.TokenKind.ComposeToken), MORPH_L40),
+    applyMorphismCompose
+  )
+);
 
-// MORPHISM = COMPOSE;
+function applyMorphEquiv(args: [Morph, Morph]): Prop {
+  return {
+    type: "MorphEquiv",
+    l: args[0],
+    r: args[1],
+  };
+}
 
-// MORPH_EQUIV.setPattern(
-//   apply(
-//     seq(MORPHISM, tok(lex.Tokentype.MorphismEquivToken), MORPHISM),
-//     applyMorphEquiv
-//   )
-// );
-
-// PROP = MORPH_EQUIV;
-
-// *********************** HYPOTHESIS PARSING ***********************
+PROP.setPattern(
+  apply(
+    seq(MORPH_L65, kright(tok(lex.TokenKind.MorphismEquivToken), MORPH_L65)),
+    applyMorphEquiv
+  )
+);
 
 export function nodeFromContext(
   name: string,
   str: string
 ): ASTNode | undefined {
-  if (str.includes(c.MORPHISM)) {
-    let from = str.slice(0, str.indexOf(c.MORPHISM)).replace(" ", "");
-    let fromObj: CatObject = { type: "ObjectVar", name: from };
-    let to = str
-      .slice(str.indexOf(c.MORPHISM) + c.MORPHISM.length)
-      .replace(" ", "");
-    let toObj: CatObject = { type: "ObjectVar", name: to };
-    return {
-      type: "MorphVar",
-      inp: fromObj,
-      outp: toObj,
-      name: name,
-    } as Morph;
-  }
-
   if (str.includes(c.MORPH_EQUIV)) {
     let from = str.slice(0, str.indexOf(c.MORPHISM)).replace(" ", "");
     let fromMorph: Morph = { type: "MorphVar", name: from };
@@ -282,7 +298,6 @@ export function nodeFromContext(
       r: toMorph,
     } as Morph;
   }
-
   if (str.includes(c.ISOMORPHISM)) {
     let from = str.slice(0, str.indexOf(c.ISOMORPHISM)).replace(" ", "");
     let fromObj: CatObject = { type: "ObjectVar", name: from };
@@ -291,18 +306,37 @@ export function nodeFromContext(
       .replace(" ", "");
     let toObj: CatObject = { type: "ObjectVar", name: to };
     return {
-      name: "name",
-      type: "IsomorphVar",
-      l: fromObj,
-      r: toObj,
-    } as Isomorph;
+      type : "Isomorphism",
+      i : {
+        name: "name",
+        type: "IsomorphVar",
+        l: fromObj,
+        r: toObj,
+      }
+    };
   }
+
+  if (str.includes(c.MORPHISM)) {
+    let from = str.slice(0, str.indexOf(c.MORPHISM)).replace(" ", "");
+    let fromObj: CatObject = { type: "ObjectVar", name: from };
+    let to = str
+      .slice(str.indexOf(c.MORPHISM) + c.MORPHISM.length)
+      .replace(" ", "");
+    let toObj: CatObject = { type: "ObjectVar", name: to };
+    return {
+      type: "MorphVar",
+      inp: fromObj,
+      outp: toObj,
+      name: name,
+    } as Morph;
+  }
+
   return undefined;
 }
 
 export function context(expr: any): Map<string, ASTNode> {
   let Γ = new Map<string, ASTNode>();
-  expr.map((hyp: { names: any[]; ty: string }) =>
+  expr.hyps.map((hyp: { names: any[]; ty: string }) =>
     hyp.names.map((name: string) => {
       let node = nodeFromContext(name, hyp.ty);
       if (node !== undefined) {
@@ -315,7 +349,16 @@ export function context(expr: any): Map<string, ASTNode> {
 
 export function parseAST(expr: string): ASTNode {
   Γ = context(expr);
-  let parsed = expectEOF(PROP.parse(lex.lexer.parse(expr)));
-  // some way of saying "throw away only the ones that error, but don't throw away the entire thing if it errors."
+  console.log("ctx: ", Γ);
+  try {
+  let lexed = lex.lexer.parse(expr);
+  console.log("lexed:", lexed);
+  let parsed = expectEOF(PROP.parse(lexed));
+  console.log("parsed:", parsed);
   return expectSingleResult(parsed);
+  } catch(e) {
+    console.log("error in parse, ", e);
+    return errorNode;
+  }
+  // some way of saying "throw away only the ones that error, but don't throw away the entire thing if it errors."
 }

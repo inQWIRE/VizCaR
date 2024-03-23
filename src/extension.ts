@@ -54,32 +54,35 @@ function renderCallback(context: vscode.ExtensionContext, expr: any) {
     console.log("no expression to be rendered");
     return;
   }
-  // console.log("expr whole: ", JSON.stringify(expr));
+  console.log("expr whole: ", expr);
   // extract correct field from lsp information
-  let goal = expr.goals.goals[0].ty.toString();
-  let hyps = expr.goals.goals[0].hyps;
-  console.log("goal: ", goal);
-  console.log("hyps: ", hyps.toString());
-  let var_ctx = parser.context(hyps);
-  console.log("var ctx: ", var_ctx);
+  // let goal = expr.goals.goals[0].ty.toString();
+  // let hyps = expr.goals.goals[0].hyps;
+  // console.log("goal: ", goal);
+  // console.log("hyps: ", hyps.toString());
+  // let var_ctx = parser.context(hyps);
+  // console.log("var ctx: ", var_ctx);
+  expr = expr.goals.goals[0];
   // console.log("---------LEXED------------");
   // lex.lexerPrettyPrinter(expr);
   // console.log("---------LEXED------------");
-
-  // let node: ast.ASTNode;
-  // try {
-  //   node = parser.parseAST(expr);
-  //   node = sizer.addSizes(node);
-  //   console.log("sized node: ", node);
-  //   const size = sizer.determineCanvasWidthHeight(node);
-  //   setCanvasWidthHeight(size);
-  //   node = coord.addCoords(node, boundary);
-  // } catch (e) {
-  //   vscode.window.showErrorMessage(
-  //     `Error rendering your expression (${expr}): ${e}`
-  //   );
-  //   return;
-  // }
+  console.log('expr.goals.goals[0]: ', expr);
+  let node: ast.ASTNode;
+  try {
+    node = parser.parseAST(expr);
+    //   node = sizer.addSizes(node);
+    //   console.log("sized node: ", node);
+    //   const size = sizer.determineCanvasWidthHeight(node);
+    //   setCanvasWidthHeight(size);
+    //   node = coord.addCoords(node, boundary);
+  } catch (e) {
+    if (e instanceof Error) {console.log(e.stack);
+    }
+    vscode.window.showErrorMessage(
+      `Error rendering your expression (${expr}): ${e}`
+    );
+    return;
+  }
   // if (openWebview !== undefined) {
   //   openWebview.dispose();
   // }

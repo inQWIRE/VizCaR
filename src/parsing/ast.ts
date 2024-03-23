@@ -41,4 +41,4 @@ export type Morph =
 
 export type Prop = { type: "MorphEquiv"; name?: string; l: Morph; r: Morph };
 
-export type ASTNode = Prop | Morph | Isomorph | CatObject;
+export type ASTNode = Prop | Morph | CatObject;
