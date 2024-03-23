@@ -17,7 +17,7 @@ export const ISOMORPHISM = "<~>"; // level 70 // TYPE
 export const MORPHISM = "~>"; // level 60 // TYPE
 export const MORPH_EQUIV = "≃"; // at level 70
 export const COMPOSE = "∘"; // f ∘ g, at level 65, left assoc
-export const INVERSE = "^-1"; // f ^-1, at level 25
+export const INVERSE = "-1"; // f ^-1, at level 25
 export const IDENTITY_MORPHISM = "id_"; // id_ A, at level 15
 
 // Monoidal

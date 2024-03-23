@@ -25,8 +25,8 @@ type Token = psec.Token<lex.TokenKind>;
 // ******************* RULES **********************
 let Γ: undefined | Map<string, ASTNode> = undefined;
 let errorNode: Morph = {
-  type: "MorphVar", 
-  name: "error"
+  type: "MorphVar",
+  name: "error",
 };
 
 // ********************** OBJECTS **********************
@@ -94,50 +94,48 @@ function applyIsomorphismVar(
     }
   }
   return {
-    type: "Isomorphism", 
-    i : {
+    type: "Isomorphism",
+    i: {
       type: "IsomorphVar",
       name: v,
-    }
+    },
   };
 }
 
 function applyLeftUnitor(a: CatObject): Morph {
   return {
-    type: "Isomorphism", 
-    i : {
+    type: "Isomorphism",
+    i: {
       type: "LeftUnitor",
       a,
-    }
+    },
   };
 }
 
 function applyRightUnitor(a: CatObject): Morph {
   return {
-    type: "Isomorphism", 
-    i : {
+    type: "Isomorphism",
+    i: {
       type: "RightUnitor",
       a,
-    }
+    },
   };
 }
 
-function applyBraiding(args: [CatObject, CatObject]) : Morph {
+function applyBraiding(args: [CatObject, CatObject]): Morph {
   return {
     type: "Isomorphism",
     i: {
       type: "Braiding",
       x: args[0],
       y: args[1],
-    }
+    },
   };
 }
 
 ISOMORPH.setPattern(
   alt(
-    apply(
-      tok(lex.TokenKind.VarToken), applyIsomorphismVar.bind(null, Γ)
-      ),
+    apply(tok(lex.TokenKind.VarToken), applyIsomorphismVar.bind(null, Γ)),
     apply(
       kright(tok(lex.TokenKind.LeftUnitorToken), CAT_OBJECT_L40),
       applyLeftUnitor
@@ -306,13 +304,13 @@ export function nodeFromContext(
       .replace(" ", "");
     let toObj: CatObject = { type: "ObjectVar", name: to };
     return {
-      type : "Isomorphism",
-      i : {
+      type: "Isomorphism",
+      i: {
         name: "name",
         type: "IsomorphVar",
         l: fromObj,
         r: toObj,
-      }
+      },
     };
   }
 
@@ -336,7 +334,7 @@ export function nodeFromContext(
 
 export function context(expr: any): Map<string, ASTNode> {
   let Γ = new Map<string, ASTNode>();
-  expr.hyps.map((hyp: { names: any[]; ty: string }) =>
+  expr.map((hyp: { names: any[]; ty: string }) =>
     hyp.names.map((name: string) => {
       let node = nodeFromContext(name, hyp.ty);
       if (node !== undefined) {
@@ -347,16 +345,16 @@ export function context(expr: any): Map<string, ASTNode> {
   return Γ;
 }
 
-export function parseAST(expr: string): ASTNode {
-  Γ = context(expr);
+export function parseAST(expr: any): ASTNode {
+  Γ = context(expr.hyps);
   console.log("ctx: ", Γ);
   try {
-  let lexed = lex.lexer.parse(expr);
-  console.log("lexed:", lexed);
-  let parsed = expectEOF(PROP.parse(lexed));
-  console.log("parsed:", parsed);
-  return expectSingleResult(parsed);
-  } catch(e) {
+    let lexed = lex.lexer.parse(expr.ty);
+    lexerPrettyPrinter(expr.ty);
+    let parsed = expectEOF(PROP.parse(lexed));
+    console.log("parsed:", parsed);
+    return expectSingleResult(parsed);
+  } catch (e) {
     console.log("error in parse, ", e);
     return errorNode;
   }

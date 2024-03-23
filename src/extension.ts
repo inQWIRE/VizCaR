@@ -66,7 +66,7 @@ function renderCallback(context: vscode.ExtensionContext, expr: any) {
   // console.log("---------LEXED------------");
   // lex.lexerPrettyPrinter(expr);
   // console.log("---------LEXED------------");
-  console.log('expr.goals.goals[0]: ', expr);
+  console.log("expr.goals.goals[0]: ", expr);
   let node: ast.ASTNode;
   try {
     node = parser.parseAST(expr);
@@ -76,7 +76,8 @@ function renderCallback(context: vscode.ExtensionContext, expr: any) {
     //   setCanvasWidthHeight(size);
     //   node = coord.addCoords(node, boundary);
   } catch (e) {
-    if (e instanceof Error) {console.log(e.stack);
+    if (e instanceof Error) {
+      console.log(e.stack);
     }
     vscode.window.showErrorMessage(
       `Error rendering your expression (${expr}): ${e}`
