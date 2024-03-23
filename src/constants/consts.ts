@@ -13,24 +13,24 @@
 // counit
 
 // Category
-export const ISOMORPHISM = "<~>"; // level 70 // type level
-export const MORPHISM = "~>"; // level 60 // type level
+export const ISOMORPHISM = "<~>"; // level 70 // TYPE
+export const MORPHISM = "~>"; // level 60 // TYPE
 export const MORPH_EQUIV = "≃"; // at level 70
-export const COMPOSE = "∘"; // level 65, left
-export const INVERSE = "^-1"; // level 25
-export const IDENTITY_MORPHISM = "id_"; // level 15
+export const COMPOSE = "∘"; // f ∘ g, at level 65, left assoc
+export const INVERSE = "^-1"; // f ^-1, at level 25
+export const IDENTITY_MORPHISM = "id_"; // id_ A, at level 15
 
 // Monoidal
-export const OBJ_TENSOR = "×"; // 40, left
-export const MORPH_TENSOR = "⊗"; // 40, left
-export const LEFT_UNITOR = "λ_"; // 30
-export const RIGHT_UNITOR = "ρ_"; // 30
+export const OBJ_TENSOR = "×"; //  x × y, at level 40, left assoc
+export const MORPH_TENSOR = "⊗"; // x ⊗ y, at level 40, left assoc
+export const LEFT_UNITOR = "λ_"; // λ_ A, at level 30
+export const RIGHT_UNITOR = "ρ_"; // ρ_ A, at level 30
 
 // Braided Monoidal
-export const BRAID = "B_"; // "B_ x , y" at level 39
+export const BRAID = "B_"; // B_ x , y, at level 39
 
 // Compact Closed
-export const OBJ_DUAL = "⋆"; // at level 0
+export const OBJ_DUAL = "⋆"; // A ⋆, at level 0
 
 // Dagger
-export const DAGGER = "†"; // at level 0
+export const DAGGER = "†"; // f †, at level 0

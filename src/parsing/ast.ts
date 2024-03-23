@@ -1,61 +1,44 @@
 import { quad } from "../constants/types";
 
-export enum ASTMorphismTransform {
-  Inverse,
-}
+// ASTNode = | MorphEquiv (l : Morph) (r : Morph)
 
-export interface ASTNode {
-  kind: string;
-  hor_len?: number;
-  ver_len?: number;
-  boundary?: quad;
-}
+// Morph = | MorphVar (name : string) (inp? : Object) (outp? : Object)
+//         | MorphId (cat : Object)
+//         | MorphInv (on: Morph)
+//         | MorphCompose (l : Morph) (r : Morph)
+//         | MorphTensor (l : Morph) (r : Morph)
+//         | MorphDagger (f : Morph)
+//         | Isomorphism (i : Isomorphism)
 
-export interface Variable {
-  name: string;
-  value?: string;
-}
-// probably want to change this because we always want the name for a category or at least the text ???
-export interface ASTCategory extends ASTNode {}
+// Isomorphism = | IsomorphVar (name : string) (l? : Object) (r? : Object)
+//               | LeftUnitor (a : Object)
+//               | RightUnitor (a : Object)
+//               | Braiding (x : Object) (y : Object)
 
-export interface ASTMorphism extends ASTNode {
-  morph_input?: ASTCategory;
-  morph_output?: ASTCategory;
-  transforms?: ASTMorphismTransform[];
-}
+// Object = | ObjectVar (name : string)
+//          | Dual (a : Object)
+//          | ObjTensor (l : Object) (r : Object)
 
-export interface ASTProp extends ASTNode {}
+export type CatObject =
+  | { type: "ObjectVar"; name: string }
+  | { type: "Dual"; a: CatObject }
+  | { type: "ObjTensor"; l: CatObject; r: CatObject };
 
-export interface ASTCategoryVar extends ASTCategory, Variable {
-  kind: "Category";
-}
+export type Isomorph =
+  | { type: "IsomorphVar"; name: string; l?: CatObject; r?: CatObject }
+  | { type: "LeftUnitor"; a: CatObject }
+  | { type: "RightUnitor"; a: CatObject }
+  | { type: "Braiding"; x: CatObject; y: CatObject };
 
-export interface ASTMorphismVar extends ASTMorphism, Variable {
-  kind: "Morphism";
-}
+export type Morph =
+  | { type: "MorphVar"; name: string; inp?: CatObject; outp?: CatObject }
+  | { type: "MorphId"; cat: CatObject }
+  | { type: "MorphInv"; on: Morph }
+  | { type: "MorphCompose"; name?: string; l: Morph; r: Morph }
+  | { type: "MorphTensor"; l: Morph; r: Morph }
+  | { type: "MorphDagger"; f: Morph }
+  | { type: "Isomorphism"; i: Isomorph };
 
-export interface ASTIsomorphism extends ASTMorphism {
-  kind: "Isomorphism";
-}
+export type Prop = { type: "MorphEquiv"; name?: string; l: Morph; r: Morph };
 
-export interface ASTMorphismEquivalence extends ASTProp {
-  kind: "MorphismEquivalence";
-  left: ASTMorphism;
-  right: ASTMorphism;
-}
-
-export interface ASTCompose extends ASTMorphism {
-  kind: "Compose";
-  left: ASTMorphism;
-  right: ASTMorphism;
-}
-
-export interface ASTIdentityMorphism extends ASTMorphism {
-  kind: "IdentityMorphism";
-  cat: ASTCategory;
-}
-
-export interface ASTInverse extends ASTMorphism {
-  kind: "Inverse";
-  morph: ASTMorphism;
-}
+export type ASTNode = Prop | Morph | Isomorph | CatObject;
