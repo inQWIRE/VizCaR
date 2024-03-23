@@ -46,7 +46,11 @@ export const lexer = buildLexer([
   ],
 
   [true, new RegExp(`\^[${c.OBJ_TENSOR}]`, "g"), TokenKind.ObjTensorToken],
-  [true, new RegExp(`\^[${c.MORPH_TENSOR}]`, "g"), TokenKind.MorphismTensorToken],
+  [
+    true,
+    new RegExp(`\^[${c.MORPH_TENSOR}]`, "g"),
+    TokenKind.MorphismTensorToken,
+  ],
   [true, new RegExp(`\^[${c.LEFT_UNITOR}]`, "g"), TokenKind.LeftUnitorToken],
   [true, new RegExp(`\^[${c.RIGHT_UNITOR}]`, "g"), TokenKind.RightUnitorToken],
 

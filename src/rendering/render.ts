@@ -212,91 +212,91 @@ function drawFuncBoundary(boundary: quad) {
   return;
 }
 
-function categoryText(node : ast.ASTCategory) : string {
-    switch (node.kind) {
-        case "Category": {
-            let node_ = node as ast.ASTCategoryVar;
-            return node_.name;
-        }
-        default: {
-            throw new Error("unknown category type");
-        }
+function categoryText(node: ast.ASTCategory): string {
+  switch (node.kind) {
+    case "Category": {
+      let node_ = node as ast.ASTCategoryVar;
+      return node_.name;
     }
+    default: {
+      throw new Error("unknown category type");
+    }
+  }
 }
 
-function drawMorphismNode(node : ast.ASTNode) {
-    let morph = node as ast.ASTMorphismVar;
-    ctx.fillStyle = white;
-    ctx.setLineDash([]);
-    ctx.lineWidth = v.LINE_WIDTH;
-    ctx.strokeStyle = black;
-    ctx.beginPath();
-    ctx.moveTo(node.boundary!.tl.x, node.boundary!.tl.y);
-    ctx.lineTo(node.boundary!.tr.x, node.boundary!.tr.y);
-    ctx.lineTo(node.boundary!.br.x, node.boundary!.br.y);
-    ctx.lineTo(node.boundary!.bl.x, node.boundary!.bl.y);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-    let center = findCenter(node.boundary!);
-    let left = findLeftCenter(node.boundary!);
-    let right = findRightCenter(node.boundary!);
-    let max_width: number | undefined = undefined;
-    text_format("morphism_name", morph.name);
-    max_width = node.hor_len! / 2;
-    if (ctx.measureText(morph.name).width > max_width) {
-        wrapText(
-        morph.name,
-        center.x,
-        center.y,
-        max_width,
-        ctx.measureText(morph.name).actualBoundingBoxAscent +
-            ctx.measureText(morph.name).actualBoundingBoxDescent,
-        false
-        );
-    } else {
-        ctx.fillText(morph.name, center.x, center.y, max_width);
+function drawMorphismNode(node: ast.ASTNode) {
+  let morph = node as ast.ASTMorphismVar;
+  ctx.fillStyle = white;
+  ctx.setLineDash([]);
+  ctx.lineWidth = v.LINE_WIDTH;
+  ctx.strokeStyle = black;
+  ctx.beginPath();
+  ctx.moveTo(node.boundary!.tl.x, node.boundary!.tl.y);
+  ctx.lineTo(node.boundary!.tr.x, node.boundary!.tr.y);
+  ctx.lineTo(node.boundary!.br.x, node.boundary!.br.y);
+  ctx.lineTo(node.boundary!.bl.x, node.boundary!.bl.y);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  let center = findCenter(node.boundary!);
+  let left = findLeftCenter(node.boundary!);
+  let right = findRightCenter(node.boundary!);
+  let max_width: number | undefined = undefined;
+  text_format("morphism_name", morph.name);
+  max_width = node.hor_len! / 2;
+  if (ctx.measureText(morph.name).width > max_width) {
+    wrapText(
+      morph.name,
+      center.x,
+      center.y,
+      max_width,
+      ctx.measureText(morph.name).actualBoundingBoxAscent +
+        ctx.measureText(morph.name).actualBoundingBoxDescent,
+      false
+    );
+  } else {
+    ctx.fillText(morph.name, center.x, center.y, max_width);
+  }
+  ctx.save();
+  ctx.translate(right.x - v.TEXT_PAD_SIZE, right.y);
+  max_width = undefined;
+  if (morph.morph_input && morph.morph_output) {
+    let in_txt = categoryText(morph.morph_input);
+    let out_txt = categoryText(morph.morph_output);
+    if (out_txt.length > 2) {
+      ctx.rotate(-Math.PI / 2);
+      max_width = node.ver_len! - 2 * v.TEXT_PAD_SIZE;
     }
-    ctx.save();
-    ctx.translate(right.x - v.TEXT_PAD_SIZE, right.y);
-    max_width = undefined;
-    if (morph.morph_input && morph.morph_output) {
-        let in_txt = categoryText(morph.morph_input);
-        let out_txt = categoryText(morph.morph_output);
-        if (out_txt.length > 2) {
-            ctx.rotate(-Math.PI / 2);
-            max_width = node.ver_len! - 2 * v.TEXT_PAD_SIZE;
-        }
-        text_format("category", out_txt);
-        wrapText(
-            out_txt,
-            0,
-            0,
-            max_width!,
-            ctx.measureText(out_txt).actualBoundingBoxAscent +
-            ctx.measureText(out_txt).actualBoundingBoxDescent,
-            false
-        );
-        ctx.restore();
-        ctx.save();
-        max_width = undefined;
-        ctx.translate(left.x + v.TEXT_PAD_SIZE, left.y);
-        if (in_txt.length > 2) {
-            max_width = node.ver_len! - 2 * v.TEXT_PAD_SIZE;
-            ctx.rotate(Math.PI / 2);
-        }
-        text_format("category", in_txt);
-        wrapText(
-            in_txt,
-            0,
-            0,
-            max_width!,
-            ctx.measureText(in_txt).actualBoundingBoxAscent +
-            ctx.measureText(in_txt).actualBoundingBoxDescent,
-            false
-        );    
-    }
+    text_format("category", out_txt);
+    wrapText(
+      out_txt,
+      0,
+      0,
+      max_width!,
+      ctx.measureText(out_txt).actualBoundingBoxAscent +
+        ctx.measureText(out_txt).actualBoundingBoxDescent,
+      false
+    );
     ctx.restore();
+    ctx.save();
+    max_width = undefined;
+    ctx.translate(left.x + v.TEXT_PAD_SIZE, left.y);
+    if (in_txt.length > 2) {
+      max_width = node.ver_len! - 2 * v.TEXT_PAD_SIZE;
+      ctx.rotate(Math.PI / 2);
+    }
+    text_format("category", in_txt);
+    wrapText(
+      in_txt,
+      0,
+      0,
+      max_width!,
+      ctx.measureText(in_txt).actualBoundingBoxAscent +
+        ctx.measureText(in_txt).actualBoundingBoxDescent,
+      false
+    );
+  }
+  ctx.restore();
 }
 
 // function drawComposeNode(node: ast.ASTNode) {
@@ -574,39 +574,39 @@ function text_format(loc: string, text: string) {
   if (text.length > 15) {
     small_text = v.REALLY_SMALL_TEXT;
   }
-    switch (loc) {
-        case "category": {
-            ctx.font = small_text.concat(" ").concat(v.MONOSPACE_FONT);
-            ctx.textBaseline = "middle";
-            ctx.textAlign = "center";
-            ctx.fillStyle = gray;
-            break;
-        }
-        case "morphism_name": {
-            if (text.length > 9) {
-              ctx.font = v.SMALL_TEXT.concat(" ").concat(v.ARIAL_FONT);
-            } else {
-              ctx.font = v.MEDIUM_TEXT.concat(" ").concat(v.ARIAL_FONT);
-            }
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillStyle = black;
-            break;
-        }      
-        default: {
-            if (text.length > 15) {
-                ctx.font = v.REALLY_SMALL_TEXT.concat(" ").concat(v.ARIAL_FONT);
-            } else if (text.length > 10) {
-                ctx.font = v.SMALL_TEXT.concat(" ").concat(v.ARIAL_FONT);
-            } else {
-                ctx.font = v.MEDIUM_TEXT.concat(" ").concat(v.ARIAL_FONT);
-            }
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillStyle = black;
-            break;
-        }
+  switch (loc) {
+    case "category": {
+      ctx.font = small_text.concat(" ").concat(v.MONOSPACE_FONT);
+      ctx.textBaseline = "middle";
+      ctx.textAlign = "center";
+      ctx.fillStyle = gray;
+      break;
     }
+    case "morphism_name": {
+      if (text.length > 9) {
+        ctx.font = v.SMALL_TEXT.concat(" ").concat(v.ARIAL_FONT);
+      } else {
+        ctx.font = v.MEDIUM_TEXT.concat(" ").concat(v.ARIAL_FONT);
+      }
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = black;
+      break;
+    }
+    default: {
+      if (text.length > 15) {
+        ctx.font = v.REALLY_SMALL_TEXT.concat(" ").concat(v.ARIAL_FONT);
+      } else if (text.length > 10) {
+        ctx.font = v.SMALL_TEXT.concat(" ").concat(v.ARIAL_FONT);
+      } else {
+        ctx.font = v.MEDIUM_TEXT.concat(" ").concat(v.ARIAL_FONT);
+      }
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = black;
+      break;
+    }
+  }
 }
 //     case "spider_in_out_background": {
 //       ctx.font = small_text.concat(" ").concat(MONOSPACE_FONT);
@@ -721,14 +721,14 @@ function text_format(loc: string, text: string) {
 function draw(node: ast.ASTNode) {
   switch (node.kind) {
     case "Morphism": {
-        drawMorphismNode(node);
-        break;
+      drawMorphismNode(node);
+      break;
     }
     case "Inverse": {
-        drawInverseNode(node);
+      drawInverseNode(node);
     }
     default: {
-        throw new Error("Unknown kind in draw");
+      throw new Error("Unknown kind in draw");
     }
   }
 }
@@ -796,7 +796,11 @@ function render(this: Window, msg: MessageEvent<any>) {
 }
 
 function formatCanvas() {
-  console.log("setting width, height in render: ", v.CANVAS_WIDTH, v.CANVAS_HEIGHT);
+  console.log(
+    "setting width, height in render: ",
+    v.CANVAS_WIDTH,
+    v.CANVAS_HEIGHT
+  );
   canvas.width = v.CANVAS_WIDTH;
   canvas.height = v.CANVAS_HEIGHT;
   ctx.fillStyle = white;

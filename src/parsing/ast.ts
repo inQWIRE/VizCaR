@@ -1,7 +1,7 @@
 import { quad } from "../constants/types";
 
 export enum ASTMorphismTransform {
-  Inverse, 
+  Inverse,
 }
 
 export interface ASTNode {
@@ -16,13 +16,12 @@ export interface Variable {
   value?: string;
 }
 // probably want to change this because we always want the name for a category or at least the text ???
-export interface ASTCategory extends ASTNode {
-}
+export interface ASTCategory extends ASTNode {}
 
 export interface ASTMorphism extends ASTNode {
   morph_input?: ASTCategory;
   morph_output?: ASTCategory;
-  transforms?: ASTMorphismTransform [];
+  transforms?: ASTMorphismTransform[];
 }
 
 export interface ASTProp extends ASTNode {}
