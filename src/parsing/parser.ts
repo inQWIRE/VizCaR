@@ -41,7 +41,7 @@ function applyCategoryVar(
   tok: Token
 ): ast.ASTCategoryVar {
   let v = tok.text;
-  if (Γ !== undefined) {
+  if (Γ) {
     let ctx_node = Γ.get(v);
     if (ctx_node !== undefined && ctx_node.kind !== "Category") {
       // TODO
@@ -176,7 +176,7 @@ MORPHISM = COMPOSE;
 
 MORPH_EQUIV.setPattern(
   apply(
-    seq(MORPHISM, tok(lex.TokenKind.ArrowEquivToken), MORPHISM),
+    seq(MORPHISM, tok(lex.TokenKind.MorphismEquivToken), MORPHISM),
     applyMorphEquiv
   )
 );

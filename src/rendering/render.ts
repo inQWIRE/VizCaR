@@ -1,60 +1,24 @@
-// import * as ast from "../parsing/ast";
-// import {
-//   CAP,
-//   CUP,
-//   BOX,
-//   WIRE,
-//   SWAP,
-//   EMPTY,
-//   PROP_TO,
-//   COLORSWAP_TRANSFORM,
-//   ADJOINT_TRANSFORM,
-//   CONJUGATE_TRANSFORM,
-//   TRANSPOSE_TRANSFORM,
-//   NUMBER_KINDS,
-//   N_STACK_OP,
-//   N_STACK_1_OP,
-// } from "../constants/consts";
-// import {
-//   LINE_WIDTH,
-//   FUNCTION_DASH,
-//   STACK_DASH,
-//   COMPOSE_DASH,
-//   CAST_DASH,
-//   PAD_SIZE,
-//   setCanvasWidthHeight,
-//   boundary,
-//   PROPTO_SIZE,
-//   FUNC_ARG_SIZE,
-//   CANVAS_WIDTH,
-//   CANVAS_HEIGHT,
-//   TEXT_PAD_SIZE,
-//   DOTS_PAD_SIZE,
-//   LARGE_TEXT,
-//   MONOSPACE_FONT,
-//   MEDIUM_TEXT,
-//   SMALL_TEXT,
-//   ARIAL_FONT,
-//   REALLY_SMALL_TEXT,
-// } from "../constants/variableconsts";
-// import { findCenter, findLeftCenter, findRightCenter } from "../parsing/coords";
-// import { quad } from "../constants/types";
-// import { determineCanvasWidthHeight } from "../parsing/sizes";
+import * as ast from "../parsing/ast";
+import * as c from "../constants/consts";
+import * as v from "../constants/variableconsts";
+import { findCenter, findLeftCenter, findRightCenter } from "../parsing/coords";
+import { quad } from "../constants/types";
+import { determineCanvasWidthHeight } from "../parsing/sizes";
 
-// const canvas = document.querySelector("canvas")!;
-// const ctx = canvas.getContext("2d")!;
-// ctx.lineWidth = LINE_WIDTH;
-// // // colors
-// const white = "#FFFFFF";
-// const black = "#000000";
-// const red = "#FFA4A4";
-// const green = "#A4FFA4";
-// const gray = "#303030";
-// const white_trans = "rgba(255, 255, 255, 0.5)";
-// // just for testing
-// // canvas.width = CANVAS_WIDTH;
-// // canvas.height = CANVAS_HEIGHT;
-// // canvas_format();
+const canvas = document.querySelector("canvas")!;
+const ctx = canvas.getContext("2d")!;
+ctx.lineWidth = v.LINE_WIDTH;
+// // colors
+const white = "#FFFFFF";
+const black = "#000000";
+const red = "#FFA4A4";
+const green = "#A4FFA4";
+const gray = "#303030";
+const white_trans = "rgba(255, 255, 255, 0.5)";
+// just for testing
+// canvas.width = CANVAS_WIDTH;
+// canvas.height = CANVAS_HEIGHT;
+// canvas_format();
 
 // function drawFunctionNode(node: ast.ASTNode) {
 //   let func = <ast.ASTFunc>node;
@@ -210,43 +174,130 @@
 //   ctx.fillText(nstack.n.expr.concat(N_STACK_1_OP), cent.x, cent.y);
 // }
 
-// function drawBoundary(boundary: quad, dash?: [number, number]) {
-//   if (dash !== undefined) {
-//     ctx.setLineDash(dash);
-//   } else {
-//     ctx.setLineDash([]);
-//   }
-//   ctx.lineWidth = LINE_WIDTH;
-//   ctx.strokeStyle = black;
-//   ctx.beginPath();
-//   ctx.moveTo(boundary.tl.x, boundary.tl.y);
-//   ctx.lineTo(boundary.tr.x, boundary.tr.y);
-//   ctx.lineTo(boundary.br.x, boundary.br.y);
-//   ctx.lineTo(boundary.bl.x, boundary.bl.y);
-//   ctx.closePath();
-//   ctx.stroke();
-//   return;
-// }
+function drawBoundary(boundary: quad, dash?: [number, number]) {
+  if (dash !== undefined) {
+    ctx.setLineDash(dash);
+  } else {
+    ctx.setLineDash([]);
+  }
+  ctx.lineWidth = v.LINE_WIDTH;
+  ctx.strokeStyle = black;
+  ctx.beginPath();
+  ctx.moveTo(boundary.tl.x, boundary.tl.y);
+  ctx.lineTo(boundary.tr.x, boundary.tr.y);
+  ctx.lineTo(boundary.br.x, boundary.br.y);
+  ctx.lineTo(boundary.bl.x, boundary.bl.y);
+  ctx.closePath();
+  ctx.stroke();
+  return;
+}
 
-// function drawFuncBoundary(boundary: quad) {
-//   ctx.setLineDash([]);
-//   ctx.strokeStyle = black;
-//   ctx.lineWidth = LINE_WIDTH;
-//   ctx.beginPath();
-//   ctx.moveTo(boundary.tl.x + PAD_SIZE, boundary.tl.y);
-//   ctx.lineTo(boundary.tl.x, boundary.tl.y);
-//   ctx.lineTo(boundary.bl.x, boundary.bl.y);
-//   ctx.lineTo(boundary.bl.x + PAD_SIZE, boundary.bl.y);
-//   ctx.stroke();
+function drawFuncBoundary(boundary: quad) {
+  ctx.setLineDash([]);
+  ctx.strokeStyle = black;
+  ctx.lineWidth = v.LINE_WIDTH;
+  ctx.beginPath();
+  ctx.moveTo(boundary.tl.x + v.PAD_SIZE, boundary.tl.y);
+  ctx.lineTo(boundary.tl.x, boundary.tl.y);
+  ctx.lineTo(boundary.bl.x, boundary.bl.y);
+  ctx.lineTo(boundary.bl.x + v.PAD_SIZE, boundary.bl.y);
+  ctx.stroke();
 
-//   // ctx.strokeStyle = black;
-//   ctx.moveTo(boundary.tr.x - PAD_SIZE, boundary.tr.y);
-//   ctx.lineTo(boundary.tr.x, boundary.tr.y);
-//   ctx.lineTo(boundary.br.x, boundary.br.y);
-//   ctx.lineTo(boundary.br.x - PAD_SIZE, boundary.br.y);
-//   ctx.stroke();
-//   return;
-// }
+  // ctx.strokeStyle = black;
+  ctx.moveTo(boundary.tr.x - v.PAD_SIZE, boundary.tr.y);
+  ctx.lineTo(boundary.tr.x, boundary.tr.y);
+  ctx.lineTo(boundary.br.x, boundary.br.y);
+  ctx.lineTo(boundary.br.x - v.PAD_SIZE, boundary.br.y);
+  ctx.stroke();
+  return;
+}
+
+function categoryText(node : ast.ASTCategory) : string {
+    switch (node.kind) {
+        case "Category": {
+            let node_ = node as ast.ASTCategoryVar;
+            return node_.name;
+        }
+        default: {
+            throw new Error("unknown category type");
+        }
+    }
+}
+
+function drawMorphismNode(node : ast.ASTNode) {
+    let morph = node as ast.ASTMorphismVar;
+    ctx.fillStyle = white;
+    ctx.setLineDash([]);
+    ctx.lineWidth = v.LINE_WIDTH;
+    ctx.strokeStyle = black;
+    ctx.beginPath();
+    ctx.moveTo(node.boundary!.tl.x, node.boundary!.tl.y);
+    ctx.lineTo(node.boundary!.tr.x, node.boundary!.tr.y);
+    ctx.lineTo(node.boundary!.br.x, node.boundary!.br.y);
+    ctx.lineTo(node.boundary!.bl.x, node.boundary!.bl.y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    let center = findCenter(node.boundary!);
+    let left = findLeftCenter(node.boundary!);
+    let right = findRightCenter(node.boundary!);
+    let max_width: number | undefined = undefined;
+    text_format("morphism_name", morph.name);
+    max_width = node.hor_len! / 2;
+    if (ctx.measureText(morph.name).width > max_width) {
+        wrapText(
+        morph.name,
+        center.x,
+        center.y,
+        max_width,
+        ctx.measureText(morph.name).actualBoundingBoxAscent +
+            ctx.measureText(morph.name).actualBoundingBoxDescent,
+        false
+        );
+    } else {
+        ctx.fillText(morph.name, center.x, center.y, max_width);
+    }
+    ctx.save();
+    ctx.translate(right.x - v.TEXT_PAD_SIZE, right.y);
+    max_width = undefined;
+    if (morph.morph_input && morph.morph_output) {
+        let in_txt = categoryText(morph.morph_input);
+        let out_txt = categoryText(morph.morph_output);
+        if (out_txt.length > 2) {
+            ctx.rotate(-Math.PI / 2);
+            max_width = node.ver_len! - 2 * v.TEXT_PAD_SIZE;
+        }
+        text_format("category", out_txt);
+        wrapText(
+            out_txt,
+            0,
+            0,
+            max_width!,
+            ctx.measureText(out_txt).actualBoundingBoxAscent +
+            ctx.measureText(out_txt).actualBoundingBoxDescent,
+            false
+        );
+        ctx.restore();
+        ctx.save();
+        max_width = undefined;
+        ctx.translate(left.x + v.TEXT_PAD_SIZE, left.y);
+        if (in_txt.length > 2) {
+            max_width = node.ver_len! - 2 * v.TEXT_PAD_SIZE;
+            ctx.rotate(Math.PI / 2);
+        }
+        text_format("category", in_txt);
+        wrapText(
+            in_txt,
+            0,
+            0,
+            max_width!,
+            ctx.measureText(in_txt).actualBoundingBoxAscent +
+            ctx.measureText(in_txt).actualBoundingBoxDescent,
+            false
+        );    
+    }
+    ctx.restore();
+}
 
 // function drawComposeNode(node: ast.ASTNode) {
 //   let compose = <ast.ASTCompose>node;
@@ -461,76 +512,102 @@
 // }
 
 // // fit text within max width
-// function wrapText(
-//   text: string,
-//   x: number,
-//   y: number,
-//   maxWidth: number,
-//   lineHeight: number,
-//   background: boolean
-// ) {
-//   let separated = text.split("(");
-//   let line = "";
-//   let lc = 0;
-//   for (let i = 0; i < separated.length; i++) {
-//     let testLine = line.concat(separated[i]);
-//     if (i !== separated.length - 1) {
-//       testLine = testLine.concat("(");
-//     }
-//     let metrics = ctx.measureText(testLine);
-//     let testWidth = metrics.width;
-//     if (testWidth > maxWidth && i > 0) {
-//       lc++;
-//       line = separated[i];
-//       if (i !== separated.length - 1) {
-//         line = line.concat("(");
-//       }
-//     } else {
-//       line = testLine;
-//     }
-//   }
-//   line = "";
-//   y -= (lc / 2) * lineHeight;
-//   for (let i = 0; i < separated.length; i++) {
-//     let testLine = line.concat(separated[i]);
-//     if (i !== separated.length - 1) {
-//       testLine = testLine.concat("(");
-//     }
-//     let metrics = ctx.measureText(testLine);
-//     let testWidth = metrics.width;
-//     if (testWidth > maxWidth && i > 0) {
-//       if (background) {
-//         ctx.fillText(Array(line.length).fill("█").join(""), x, y);
-//       }
-//       ctx.fillText(line, x, y);
-//       line = separated[i];
-//       if (i !== separated.length - 1) {
-//         line = line.concat("(");
-//       }
-//       y += lineHeight;
-//     } else {
-//       line = testLine;
-//     }
-//   }
-//   if (background) {
-//     ctx.fillText(Array(line.length).fill("█").join(""), x, y);
-//   }
-//   ctx.fillText(line, x, y);
-// }
+function wrapText(
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  lineHeight: number,
+  background: boolean
+) {
+  let separated = text.split("(");
+  let line = "";
+  let lc = 0;
+  for (let i = 0; i < separated.length; i++) {
+    let testLine = line.concat(separated[i]);
+    if (i !== separated.length - 1) {
+      testLine = testLine.concat("(");
+    }
+    let metrics = ctx.measureText(testLine);
+    let testWidth = metrics.width;
+    if (testWidth > maxWidth && i > 0) {
+      lc++;
+      line = separated[i];
+      if (i !== separated.length - 1) {
+        line = line.concat("(");
+      }
+    } else {
+      line = testLine;
+    }
+  }
+  line = "";
+  y -= (lc / 2) * lineHeight;
+  for (let i = 0; i < separated.length; i++) {
+    let testLine = line.concat(separated[i]);
+    if (i !== separated.length - 1) {
+      testLine = testLine.concat("(");
+    }
+    let metrics = ctx.measureText(testLine);
+    let testWidth = metrics.width;
+    if (testWidth > maxWidth && i > 0) {
+      if (background) {
+        ctx.fillText(Array(line.length).fill("█").join(""), x, y);
+      }
+      ctx.fillText(line, x, y);
+      line = separated[i];
+      if (i !== separated.length - 1) {
+        line = line.concat("(");
+      }
+      y += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  if (background) {
+    ctx.fillText(Array(line.length).fill("█").join(""), x, y);
+  }
+  ctx.fillText(line, x, y);
+}
 
-// function text_format(loc: string, text: string) {
-//   let small_text = SMALL_TEXT;
-//   if (text.length > 15) {
-//     small_text = REALLY_SMALL_TEXT;
-//   }
-//   switch (loc) {
-//     case "spider_in_out": {
-//       ctx.font = small_text.concat(" ").concat(MONOSPACE_FONT);
-//       ctx.textBaseline = "middle";
-//       ctx.textAlign = "center";
-//       ctx.fillStyle = gray;
-//       break;
-//     }
+function text_format(loc: string, text: string) {
+  let small_text = v.SMALL_TEXT;
+  if (text.length > 15) {
+    small_text = v.REALLY_SMALL_TEXT;
+  }
+    switch (loc) {
+        case "category": {
+            ctx.font = small_text.concat(" ").concat(v.MONOSPACE_FONT);
+            ctx.textBaseline = "middle";
+            ctx.textAlign = "center";
+            ctx.fillStyle = gray;
+            break;
+        }
+        case "morphism_name": {
+            if (text.length > 9) {
+              ctx.font = v.SMALL_TEXT.concat(" ").concat(v.ARIAL_FONT);
+            } else {
+              ctx.font = v.MEDIUM_TEXT.concat(" ").concat(v.ARIAL_FONT);
+            }
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = black;
+            break;
+        }      
+        default: {
+            if (text.length > 15) {
+                ctx.font = v.REALLY_SMALL_TEXT.concat(" ").concat(v.ARIAL_FONT);
+            } else if (text.length > 10) {
+                ctx.font = v.SMALL_TEXT.concat(" ").concat(v.ARIAL_FONT);
+            } else {
+                ctx.font = v.MEDIUM_TEXT.concat(" ").concat(v.ARIAL_FONT);
+            }
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = black;
+            break;
+        }
+    }
+}
 //     case "spider_in_out_background": {
 //       ctx.font = small_text.concat(" ").concat(MONOSPACE_FONT);
 //       ctx.textAlign = "center";
@@ -641,8 +718,20 @@
 //   }
 // }
 
-// function draw(node: ast.ASTNode) {
-//   switch (node.kind) {
+function draw(node: ast.ASTNode) {
+  switch (node.kind) {
+    case "Morphism": {
+        drawMorphismNode(node);
+        break;
+    }
+    case "Inverse": {
+        drawInverseNode(node);
+    }
+    default: {
+        throw new Error("Unknown kind in draw");
+    }
+  }
+}
 //     case "spider": {
 //       drawBaseNode(node);
 //       break;
@@ -697,23 +786,23 @@
 //   }
 // }
 
-// function render(this: Window, msg: MessageEvent<any>) {
-//   let command = msg.data.command;
-//   let node: ast.ASTNode = JSON.parse(command);
-//   setCanvasWidthHeight(determineCanvasWidthHeight(node));
-//   formatCanvas();
-//   console.log("b4 drawing really small text = ", REALLY_SMALL_TEXT);
-//   draw(node);
-// }
+function render(this: Window, msg: MessageEvent<any>) {
+  let command = msg.data.command;
+  let node: ast.ASTNode = JSON.parse(command);
+  v.setCanvasWidthHeight(determineCanvasWidthHeight(node));
+  formatCanvas();
+  console.log("b4 drawing really small text = ", v.REALLY_SMALL_TEXT);
+  draw(node);
+}
 
-// function formatCanvas() {
-//   console.log("setting width, height in render: ", CANVAS_WIDTH, CANVAS_HEIGHT);
-//   canvas.width = CANVAS_WIDTH;
-//   canvas.height = CANVAS_HEIGHT;
-//   ctx.fillStyle = white;
-//   ctx.fillRect(0, 0, canvas.width, canvas.height);
-//   ctx.strokeStyle = black;
-// }
+function formatCanvas() {
+  console.log("setting width, height in render: ", v.CANVAS_WIDTH, v.CANVAS_HEIGHT);
+  canvas.width = v.CANVAS_WIDTH;
+  canvas.height = v.CANVAS_HEIGHT;
+  ctx.fillStyle = white;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = black;
+}
 
 // // function downloadSVG() {
 // //   const svgData = `
