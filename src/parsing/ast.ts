@@ -20,25 +20,107 @@ import { quad } from "../constants/types";
 //          | ObjTensor (l : Object) (r : Object)
 
 export type CatObject =
-  | { type: "ObjectVar"; name: string }
-  | { type: "Dual"; a: CatObject }
-  | { type: "ObjTensor"; l: CatObject; r: CatObject };
+  | { type: "ObjectVar"; name: string; as_text: string }
+  | { type: "Dual"; a: CatObject; as_text: string }
+  | { type: "ObjTensor"; l: CatObject; r: CatObject; as_text: string };
 
 export type Isomorph =
-  | { type: "IsomorphVar"; name: string; l?: CatObject; r?: CatObject }
-  | { type: "LeftUnitor"; a: CatObject }
-  | { type: "RightUnitor"; a: CatObject }
-  | { type: "Braiding"; x: CatObject; y: CatObject };
+  | {
+      type: "IsomorphVar";
+      name: string;
+      l?: CatObject;
+      r?: CatObject;
+      hor_len?: number;
+      ver_len?: number;
+      boundary?: quad;
+    }
+  | {
+      type: "LeftUnitor";
+      a: CatObject;
+      hor_len?: number;
+      ver_len?: number;
+      boundary?: quad;
+    }
+  | {
+      type: "RightUnitor";
+      a: CatObject;
+      hor_len?: number;
+      ver_len?: number;
+      boundary?: quad;
+    }
+  | {
+      type: "Braiding";
+      x: CatObject;
+      y: CatObject;
+      hor_len?: number;
+      ver_len?: number;
+      boundary?: quad;
+    };
 
 export type Morph =
-  | { type: "MorphVar"; name: string; inp?: CatObject; outp?: CatObject }
-  | { type: "MorphId"; cat: CatObject }
-  | { type: "MorphInv"; on: Morph }
-  | { type: "MorphCompose"; name?: string; l: Morph; r: Morph }
-  | { type: "MorphTensor"; l: Morph; r: Morph }
-  | { type: "MorphDagger"; f: Morph }
-  | { type: "Isomorphism"; i: Isomorph };
+  | {
+      type: "MorphVar";
+      name: string;
+      inp?: CatObject;
+      outp?: CatObject;
+      hor_len?: number;
+      ver_len?: number;
+      boundary?: quad;
+    }
+  | {
+      type: "MorphId";
+      cat: CatObject;
+      hor_len?: number;
+      ver_len?: number;
+      boundary?: quad;
+    }
+  | {
+      type: "MorphInv";
+      on: Morph;
+      hor_len?: number;
+      ver_len?: number;
+      boundary?: quad;
+    }
+  | {
+      type: "MorphCompose";
+      name?: string;
+      l: Morph;
+      r: Morph;
+      hor_len?: number;
+      ver_len?: number;
+      boundary?: quad;
+    }
+  | {
+      type: "MorphTensor";
+      l: Morph;
+      r: Morph;
+      hor_len?: number;
+      ver_len?: number;
+      boundary?: quad;
+    }
+  | {
+      type: "MorphDagger";
+      f: Morph;
+      hor_len?: number;
+      ver_len?: number;
+      boundary?: quad;
+    }
+  | {
+      type: "Isomorphism";
+      i: Isomorph;
+      hor_len?: number;
+      ver_len?: number;
+      boundary?: quad;
+    };
 
-export type Prop = { type: "MorphEquiv"; name?: string; l: Morph; r: Morph };
+export type Prop = {
+  type: "MorphEquiv";
+  name?: string;
+  l: Morph;
+  r: Morph;
+  hor_len?: number;
+  ver_len?: number;
+  boundary?: quad;
+};
 
-export type ASTNode = Prop | Morph | CatObject;
+export type ASTNode = Prop | Morph;

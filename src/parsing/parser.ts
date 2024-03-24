@@ -53,6 +53,7 @@ function applyObjectVar(tok: Token): CatObject {
   return {
     type: "ObjectVar",
     name: tok.text,
+    as_text: tok.text,
   };
 }
 
@@ -60,6 +61,7 @@ function applyDual(a: CatObject): CatObject {
   return {
     type: "Dual",
     a,
+    as_text: a.as_text.concat(c.OBJ_DUAL),
   };
 }
 
@@ -68,6 +70,7 @@ function applyObjTensor(l: CatObject, r: CatObject): CatObject {
     type: "ObjTensor",
     l,
     r,
+    as_text: l.as_text.concat(c.OBJ_TENSOR.concat(r.as_text)),
   };
 }
 
@@ -97,7 +100,7 @@ function applyIsomorphismVar(tok: Token): Morph | undefined {
       return undefined;
     }
     if (ctx_node !== undefined) {
-      return ctx_node;
+      return ctx_node as Morph;
     }
   }
   // console.log("Gamma undefined in applyIsomorphismVar, ", v);
@@ -173,7 +176,7 @@ function applyMorphismVar(tok: Token): Morph | undefined {
       // throw new Error("explicitly not a morphism in ctx!!");
     }
     if (ctx_node !== undefined) {
-      return ctx_node;
+      return ctx_node as Morph;
     }
   }
   // console.log("Gamma undefined in applyMorphismVar, ", v);
@@ -328,11 +331,12 @@ export function nodeFromContext(
   }
   if (str.includes(c.ISOMORPHISM)) {
     let from = str.slice(0, str.indexOf(c.ISOMORPHISM)).replace(" ", "");
-    let fromObj: CatObject = { type: "ObjectVar", name: from };
+    // TODO parse as obj not just str
+    let fromObj: CatObject = { type: "ObjectVar", name: from, as_text: from };
     let to = str
       .slice(str.indexOf(c.ISOMORPHISM) + c.ISOMORPHISM.length)
       .replace(" ", "");
-    let toObj: CatObject = { type: "ObjectVar", name: to };
+    let toObj: CatObject = { type: "ObjectVar", name: to, as_text: to };
     return {
       type: "Isomorphism",
       i: {
@@ -346,11 +350,11 @@ export function nodeFromContext(
 
   if (str.includes(c.MORPHISM)) {
     let from = str.slice(0, str.indexOf(c.MORPHISM)).replace(" ", "");
-    let fromObj: CatObject = { type: "ObjectVar", name: from };
+    let fromObj: CatObject = { type: "ObjectVar", name: from, as_text: from };
     let to = str
       .slice(str.indexOf(c.MORPHISM) + c.MORPHISM.length)
       .replace(" ", "");
-    let toObj: CatObject = { type: "ObjectVar", name: to };
+    let toObj: CatObject = { type: "ObjectVar", name: to, as_text: to };
     return {
       type: "MorphVar",
       inp: fromObj,
