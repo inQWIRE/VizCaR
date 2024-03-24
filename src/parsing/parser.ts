@@ -18,27 +18,36 @@ let _ = require("lodash");
 import { CatObject, Isomorph, Morph, Prop, ASTNode } from "./ast";
 import * as c from "../constants/consts";
 import * as lex from "./lexer";
-import { lexerPrettyPrinter } from "./lexer";
+import { lexerWithPrettyPrinter } from "./lexer";
 
 type Token = psec.Token<lex.TokenKind>;
 
+export function parseAST(expr: any): ASTNode {
+  Γ = context(expr.hyps);
+  console.log("ctx: ", Γ);
+  let parsed = PROP.parse(lex.lexer.parse(expr.ty));
+  if (parsed.successful) {
+    let parsed_candidates_2 = parsed.candidates.filter(
+      (x) => x.result !== undefined
+    );
+    return parsed_candidates_2[0].result as Prop;
+  }
+  throw new Error(`unsuccessful parse: ${expr.ty}`);
+}
+
 // ******************* RULES **********************
 let Γ: undefined | Map<string, ASTNode> = undefined;
-let errorNode: Morph = {
-  type: "MorphVar",
-  name: "error",
-};
 
 // ********************** OBJECTS **********************
 
 const CAT_OBJECT_L0 = rule<lex.TokenKind, CatObject>();
 const CAT_OBJECT_L40 = rule<lex.TokenKind, CatObject>();
-const ISOMORPH = rule<lex.TokenKind, Morph>();
-const MORPH_L0 = rule<lex.TokenKind, Morph>();
-const MORPH_L25 = rule<lex.TokenKind, Morph>();
-const MORPH_L40 = rule<lex.TokenKind, Morph>();
-const MORPH_L65 = rule<lex.TokenKind, Morph>();
-const PROP = rule<lex.TokenKind, Prop>();
+const ISOMORPH = rule<lex.TokenKind, Morph | undefined>();
+const MORPH_L0 = rule<lex.TokenKind, Morph | undefined>();
+const MORPH_L25 = rule<lex.TokenKind, Morph | undefined>();
+const MORPH_L40 = rule<lex.TokenKind, Morph | undefined>();
+const MORPH_L65 = rule<lex.TokenKind, Morph | undefined>();
+const PROP = rule<lex.TokenKind, Prop | undefined>();
 
 function applyObjectVar(tok: Token): CatObject {
   return {
@@ -78,21 +87,20 @@ CAT_OBJECT_L40.setPattern(
   )
 );
 
-function applyIsomorphismVar(
-  Γ: Map<string, ASTNode> | undefined,
-  tok: Token
-): Morph {
+function applyIsomorphismVar(tok: Token): Morph | undefined {
   let v = tok.text;
   if (Γ !== undefined) {
     let ctx_node = Γ.get(v);
     if (ctx_node !== undefined && ctx_node.type !== "Isomorphism") {
       // TODO
-      return errorNode;
+      // console.log("returning undefined in applyIsomorphismVar for ", v);
+      return undefined;
     }
     if (ctx_node !== undefined) {
       return ctx_node;
     }
   }
+  // console.log("Gamma undefined in applyIsomorphismVar, ", v);
   return {
     type: "Isomorphism",
     i: {
@@ -102,7 +110,7 @@ function applyIsomorphismVar(
   };
 }
 
-function applyLeftUnitor(a: CatObject): Morph {
+function applyLeftUnitor(a: CatObject): Morph | undefined {
   return {
     type: "Isomorphism",
     i: {
@@ -112,7 +120,7 @@ function applyLeftUnitor(a: CatObject): Morph {
   };
 }
 
-function applyRightUnitor(a: CatObject): Morph {
+function applyRightUnitor(a: CatObject): Morph | undefined {
   return {
     type: "Isomorphism",
     i: {
@@ -122,7 +130,7 @@ function applyRightUnitor(a: CatObject): Morph {
   };
 }
 
-function applyBraiding(args: [CatObject, CatObject]): Morph {
+function applyBraiding(args: [CatObject, CatObject]): Morph | undefined {
   return {
     type: "Isomorphism",
     i: {
@@ -135,7 +143,7 @@ function applyBraiding(args: [CatObject, CatObject]): Morph {
 
 ISOMORPH.setPattern(
   alt(
-    apply(tok(lex.TokenKind.VarToken), applyIsomorphismVar.bind(null, Γ)),
+    apply(tok(lex.TokenKind.VarToken), applyIsomorphismVar.bind(Γ)),
     apply(
       kright(tok(lex.TokenKind.LeftUnitorToken), CAT_OBJECT_L40),
       applyLeftUnitor
@@ -154,68 +162,85 @@ ISOMORPH.setPattern(
   )
 );
 
-function applyMorphismVar(
-  Γ: Map<string, ASTNode> | undefined,
-  tok: Token
-): Morph {
+function applyMorphismVar(tok: Token): Morph | undefined {
   let v = tok.text;
   if (Γ !== undefined) {
     let ctx_node = Γ.get(v);
     if (ctx_node !== undefined && ctx_node.type !== "MorphVar") {
       // TODO
-      return errorNode;
+      // console.log("returning undefined in applyMorphismVar for ", v);
+      return undefined;
       // throw new Error("explicitly not a morphism in ctx!!");
     }
     if (ctx_node !== undefined) {
       return ctx_node;
     }
   }
+  // console.log("Gamma undefined in applyMorphismVar, ", v);
   return {
     type: "MorphVar",
     name: v,
   };
 }
 
-function applyMorphismId(cat: CatObject): Morph {
+function applyMorphismId(cat: CatObject): Morph | undefined {
   return {
     type: "MorphId",
     cat,
   };
 }
 
-function applyMorphismInv(on: Morph): Morph {
-  return {
-    type: "MorphInv",
-    on,
-  };
+function applyMorphismInv(on: Morph | undefined): Morph | undefined {
+  if (on) {
+    return {
+      type: "MorphInv",
+      on,
+    };
+  }
+  return undefined;
 }
 
-function applyMorphismCompose(l: Morph, r: Morph): Morph {
-  return {
-    type: "MorphCompose",
-    l,
-    r,
-  };
+function applyMorphismCompose(
+  l: Morph | undefined,
+  r: Morph | undefined
+): Morph | undefined {
+  if (l && r) {
+    return {
+      type: "MorphCompose",
+      l,
+      r,
+    };
+  }
+  return undefined;
 }
 
-function applyMorphismTensor(l: Morph, r: Morph): Morph {
-  return {
-    type: "MorphTensor",
-    l,
-    r,
-  };
+function applyMorphismTensor(
+  l: Morph | undefined,
+  r: Morph | undefined
+): Morph | undefined {
+  if (l && r) {
+    return {
+      type: "MorphTensor",
+      l,
+      r,
+    };
+  }
+  return undefined;
 }
 
-function applyMorphismDagger(f: Morph): Morph {
-  return {
-    type: "MorphDagger",
-    f,
-  };
+function applyMorphismDagger(f: Morph | undefined): Morph | undefined {
+  if (f) {
+    return {
+      type: "MorphDagger",
+      f,
+    };
+  }
+  return undefined;
 }
 
 MORPH_L0.setPattern(
   alt(
-    apply(tok(lex.TokenKind.VarToken), applyMorphismVar.bind(null, Γ)),
+    apply(tok(lex.TokenKind.VarToken), applyMorphismVar.bind(Γ)),
     ISOMORPH,
     apply(
       kright(tok(lex.TokenKind.IdentityMorphismToken), CAT_OBJECT_L40),
@@ -248,12 +273,17 @@ MORPH_L65.setPattern(
   )
 );
 
-function applyMorphEquiv(args: [Morph, Morph]): Prop {
-  return {
-    type: "MorphEquiv",
-    l: args[0],
-    r: args[1],
-  };
+function applyMorphEquiv(
+  args: [Morph | undefined, Morph | undefined]
+): Prop | undefined {
+  if (args[0] && args[1]) {
+    return {
+      type: "MorphEquiv",
+      l: args[0],
+      r: args[1],
+    };
+  }
+  return undefined;
 }
 
 PROP.setPattern(
@@ -343,20 +373,4 @@ export function context(expr: any): Map<string, ASTNode> {
     })
   );
   return Γ;
-}
-
-export function parseAST(expr: any): ASTNode {
-  Γ = context(expr.hyps);
-  console.log("ctx: ", Γ);
-  try {
-    let lexed = lex.lexer.parse(expr.ty);
-    lexerPrettyPrinter(expr.ty);
-    let parsed = expectEOF(PROP.parse(lexed));
-    console.log("parsed:", parsed);
-    return expectSingleResult(parsed);
-  } catch (e) {
-    console.log("error in parse, ", e);
-    return errorNode;
-  }
-  // some way of saying "throw away only the ones that error, but don't throw away the entire thing if it errors."
 }
