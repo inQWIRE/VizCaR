@@ -136,6 +136,11 @@ export function addSizes(node: ast.ASTNode): ast.ASTNode {
           node.ver_len = BASE_SIZE;
           break;
         }
+        case "Associator": {
+          node.hor_len = BASE_SIZE;
+          node.ver_len = BASE_SIZE;
+          break;
+        }
         case "Braiding": {
           node.hor_len = BASE_SIZE;
           node.ver_len = BASE_SIZE;
@@ -147,9 +152,9 @@ export function addSizes(node: ast.ASTNode): ast.ASTNode {
           );
         }
       }
+      break;
     }
     default: {
-      throw new Error(`addSizes: unknown node type ${node.type}`);
     }
   }
   node = addSizesHappyRobot(node);

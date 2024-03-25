@@ -302,6 +302,14 @@ export function addCoords(node: ast.ASTNode, boundary: quad): ast.ASTNode {
           );
           return node;
         }
+        case "Associator": {
+          node.boundary = makeAtCenter(
+            findCenter(boundary),
+            node.hor_len!,
+            node.ver_len!
+          );
+          return node;
+        }
         case "Braiding": {
           node.boundary = makeAtCenter(
             findCenter(boundary),

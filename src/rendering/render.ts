@@ -427,6 +427,33 @@ function drawBaseNodeMorph(node: ast.ASTNode) {
           label = c.RIGHT_UNITOR_RENDER.concat(" ").concat(node_.a.as_text);
           break;
         }
+        case "Associator": {
+          inp = "("
+            .concat(node_.a.as_text)
+            .concat(" ")
+            .concat(c.COMPOSE)
+            .concat(node_.b.as_text)
+            .concat(") ")
+            .concat(c.COMPOSE)
+            .concat(" ")
+            .concat(node_.m.as_text);
+          inp = node_.a.as_text
+            .concat(" ")
+            .concat(c.COMPOSE)
+            .concat(" (")
+            .concat(node_.b.as_text)
+            .concat(c.COMPOSE)
+            .concat(" ")
+            .concat(node_.m.as_text)
+            .concat(") ");
+          label = c.RIGHT_UNITOR_RENDER.concat(" ")
+            .concat(node_.a.as_text)
+            .concat(", ")
+            .concat(node_.b.as_text)
+            .concat(", ")
+            .concat(node_.m.as_text);
+          break;
+        }
         default: {
           throw new Error(`unknown isomorph`);
         }
@@ -557,6 +584,10 @@ function draw(node: ast.ASTNode) {
           drawBaseNodeMorph(node);
           break;
         }
+        case "Associator": {
+          drawBaseNodeMorph(node);
+          break;
+        }
         case "Braiding": {
           drawBraidNode(node);
           break;
@@ -565,6 +596,7 @@ function draw(node: ast.ASTNode) {
           throw new Error("unknown type in draw, isomorph");
         }
       }
+      break;
     }
 
     default: {

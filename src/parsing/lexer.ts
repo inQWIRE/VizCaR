@@ -14,6 +14,7 @@ export enum TokenKind {
   MorphismTensorToken,
   LeftUnitorToken,
   RightUnitorToken,
+  AssociatorToken,
 
   BraidToken,
 
@@ -39,6 +40,7 @@ export const lexer = buildLexer([
   ],
   [true, new RegExp(`\^${c.LEFT_UNITOR}`, "g"), TokenKind.LeftUnitorToken],
   [true, new RegExp(`\^${c.RIGHT_UNITOR}`, "g"), TokenKind.RightUnitorToken],
+  [true, new RegExp(`\^${c.ASSOCIATOR}`, "g"), TokenKind.AssociatorToken],
 
   [true, new RegExp(`\^${c.BRAID}`, "g"), TokenKind.BraidToken],
 

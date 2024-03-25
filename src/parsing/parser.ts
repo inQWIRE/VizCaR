@@ -34,6 +34,7 @@ export function parseAST(expr: any): ASTNode {
     assert(parsed_candidates_2.length === 1);
     return parsed_candidates_2[0].result as Prop;
   }
+  console.log(parsed);
   throw new Error(`unsuccessful parse: ${expr.ty}`);
 }
 
@@ -77,10 +78,13 @@ function applyObjTensor(l: CatObject, r: CatObject): CatObject {
 }
 
 CAT_OBJECT_L0.setPattern(
-  lrec_sc(
-    apply(tok(lex.TokenKind.VarToken), applyObjectVar),
-    tok(lex.TokenKind.ObjDualToken),
-    applyDual
+  alt(
+    kmid(tok(lex.TokenKind.LParen), CAT_OBJECT_L40, tok(lex.TokenKind.RParen)),
+    lrec_sc(
+      apply(tok(lex.TokenKind.VarToken), applyObjectVar),
+      tok(lex.TokenKind.ObjDualToken),
+      applyDual
+    )
   )
 );
 
@@ -135,6 +139,20 @@ function applyRightUnitor(a: CatObject): Morph | undefined {
   };
 }
 
+function applyAssociator(
+  args: [CatObject, CatObject, CatObject]
+): Morph | undefined {
+  return {
+    type: "Isomorphism",
+    i: {
+      type: "Associator",
+      a: args[0],
+      b: args[1],
+      m: args[2],
+    },
+  };
+}
+
 function applyBraiding(args: [CatObject, CatObject]): Morph | undefined {
   return {
     type: "Isomorphism",
@@ -163,6 +181,14 @@ ISOMORPH.setPattern(
         kright(tok(lex.TokenKind.Comma), CAT_OBJECT_L40)
       ),
       applyBraiding
+    ),
+    apply(
+      seq(
+        kright(tok(lex.TokenKind.AssociatorToken), CAT_OBJECT_L40),
+        kright(tok(lex.TokenKind.Comma), CAT_OBJECT_L40),
+        kright(tok(lex.TokenKind.Comma), CAT_OBJECT_L40)
+      ),
+      applyAssociator
     )
   )
 );
@@ -343,7 +369,7 @@ export function nodeFromContext(
     return {
       type: "Isomorphism",
       i: {
-        name: "name",
+        name: name,
         type: "IsomorphVar",
         l: fromObj,
         r: toObj,

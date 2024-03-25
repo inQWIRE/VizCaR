@@ -49,6 +49,15 @@ export type Isomorph =
       boundary?: quad;
     }
   | {
+      type: "Associator";
+      a: CatObject;
+      b: CatObject;
+      m: CatObject;
+      hor_len?: number;
+      ver_len?: number;
+      boundary?: quad;
+    }
+  | {
       type: "Braiding";
       x: CatObject;
       y: CatObject;
