@@ -13,43 +13,32 @@
 // counit
 
 // Category
-export const ISOMORPHISM = "<~>";
-export const MORPHISM = "~>";
-export const MORPH_EQUIV = "≃";
-export const CAT_EQUIV = "≅";
-export const COMPOSE = "∘";
-export const INVERSE = "^-1";
+export const ISOMORPHISM = "<~>"; // level 70 // TYPE
+export const MORPHISM = "~>"; // level 60 // TYPE
+export const MORPH_EQUIV = "≃"; // at level 70
+export const COMPOSE = "∘"; // f ∘ g, at level 65, left assoc
+export const INVERSE = "⁻¹"; // f ^-1, at level 25
+export const IDENTITY_MORPHISM = "id_"; // id_ A, at level 15
 
 // Monoidal
-export const CAT_TENSOR = "×";
-export const MORPH_TENSOR = "⊗";
+export const OBJ_TENSOR = "×"; //  x × y, at level 40, left assoc
+export const MORPH_TENSOR = "⊗"; // x ⊗ y, at level 40, left assoc
+export const LEFT_UNITOR = "λ_"; // λ_ A, at level 30
+export const RIGHT_UNITOR = "ρ_"; // ρ_ A, at level 30
+export const ASSOCIATOR = "α_"; //  α_ A , B , M // at level 20
+
+// Braided Monoidal
+export const BRAID = "B_"; // B_ x , y, at level 39
+
+// Compact Closed
+export const OBJ_DUAL = "⋆"; // A ⋆, at level 0
 
 // Dagger
+export const DAGGER = "†"; // f †, at level 0
 
-// export const ADD_OP = "+";
-// export const SUB_OP = "-";
-// export const MUL_OP = "*";
-// export const DIV_OP = "/";
-// export const ROOT_OP = "√";
-// export const EXP_OP = "^";
-
-// export const N_STACK_OP = "⇑";
-// export const COMPOSE_OP = "⟷"; //\longleftrightarrow
-// export const STACK_OP = "↕"; // \updownarrow
-// export const N_STACK_1_OP = "↑";
-
-// export const PROP_TO = "∝";
-// export const CAP = "⊂";
-// export const CUP = "⊃";
-// export const WIRE = "—";
-// export const BOX = "□";
-// export const SWAP = "⨉";
-// export const EMPTY = "⦰";
-
-// export const TRANSPOSE_TRANSFORM = "⊤";
-// export const CONJUGATE_TRANSFORM = "⊼";
-// export const ADJOINT_TRANSFORM = "†";
-// export const COLORSWAP_TRANSFORM = "⊙";
-// export const FLIP_TRANSFORM = "⥍";
-
-// export const NUMBER_KINDS = ["realnum", "num", "numvar", "numfunc", "real01"];
+// Render Util
+export const WIRE = "—";
+export const LEFT_UNITOR_RENDER = "λ";
+export const RIGHT_UNITOR_RENDER = "ρ";
+export const BRAID_RENDER = "×";
+export const ASSOCIATOR_RENDER = "α";

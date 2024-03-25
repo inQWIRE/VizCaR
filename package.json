@@ -1,8 +1,8 @@
 {
-  "name": "vicar",
+  "name": "vizcar",
   "displayName": "ViZCaR",
   "description": "Visualizer for ViCaR",
-  "version": "0.1.3",
+  "version": "0.0.2",
   "repository": "https://github.com/inQWIRE/VizCaR/",
   "publisher": "inQWIRE",
   "engines": {
@@ -12,14 +12,19 @@
     "Other"
   ],
   "activationEvents": [
+    "onCommand:vizcar.lspRender"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
+      {
+        "command": "vizcar.lspRender",
+        "title": "vizcar: Activate: Render expressions with vizcar using CoqLSP information"
+      }
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run package",
+    "vscode:prepublish": "npm run compile & npm run package",
     "compile": "node ./esbuild.js",
     "package": "NODE_ENV=production node ./esbuild.js",
     "watch": "node ./esbuild.js --watch",

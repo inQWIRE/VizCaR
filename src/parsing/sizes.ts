@@ -1,256 +1,39 @@
 import * as ast from "./ast";
-import { NUMBER_KINDS } from "../constants/consts";
 import {
   HOR_PAD,
   VER_PAD,
   BASE_SIZE,
   CAST_SIZE,
   PAD_SIZE,
-  PROPTO_SIZE,
+  MORPH_EQUIV_SIZE,
   FUNC_ARG_SIZE,
   SCALE,
 } from "../constants/variableconsts";
+import { basename } from "path";
 
-export function addSizesHappyRobot(node: ast.ASTNode): ast.ASTNode {
-  switch (node.kind) {
-    case "compose": {
-      let node_ = <ast.ASTCompose>node;
-      if (node_.ver_len === undefined || node_.hor_len === undefined) {
-        throw new Error(`length undefined in second sizing\n`);
-      }
-      let desired_hor = node_.hor_len - 3 * PAD_SIZE;
-      let desired_ver = node_.ver_len - 2 * PAD_SIZE;
-      let sleft = JSON.parse(JSON.stringify(node_.left));
-      let sright = JSON.parse(JSON.stringify(node_.right));
-      node_.left.hor_len = Number(
-        (
-          (sleft.hor_len! /
-            Number((sleft.hor_len! + sright.hor_len!).toFixed(0))) *
-          desired_hor
-        ).toFixed(0)
-      );
-      node_.right.hor_len = Number(
-        (
-          (sright.hor_len! /
-            Number((sleft.hor_len! + sright.hor_len!).toFixed(0))) *
-          desired_hor
-        ).toFixed(0)
-      );
-      node_.left.ver_len = desired_ver;
-      node_.right.ver_len = desired_ver;
-      node_.left = addSizesHappyRobot(node_.left);
-      node_.right = addSizesHappyRobot(node_.right);
-      node = node_;
-      break;
-    }
-    case "stack": {
-      let node_ = <ast.ASTStack>node;
-      if (node_.ver_len === undefined || node_.hor_len === undefined) {
-        throw new Error(`length undefined in second sizing\n`);
-      }
-      let desired_hor = node_.hor_len - 2 * PAD_SIZE;
-      let desired_ver = node_.ver_len - 3 * PAD_SIZE;
-      let sleft = JSON.parse(JSON.stringify(node_.left));
-      let sright = JSON.parse(JSON.stringify(node_.right));
-      node_.left.hor_len = desired_hor;
-      node_.right.hor_len = desired_hor;
-      node_.left.ver_len = Number(
-        (
-          (sleft.ver_len! /
-            Number((sleft.ver_len! + sright.ver_len!).toFixed(0))) *
-          desired_ver
-        ).toFixed(0)
-      );
-      node_.right.ver_len = Number(
-        (
-          (sright.ver_len! /
-            Number((sleft.ver_len! + sright.ver_len!).toFixed(0))) *
-          desired_ver
-        ).toFixed(0)
-      );
-      node_.left = addSizesHappyRobot(node_.left);
-      node_.right = addSizesHappyRobot(node_.right);
-      node = node_;
-      break;
-    }
-    case "nstack": {
-      let node_ = <ast.ASTNStack>node;
-      if (node_.ver_len === undefined || node_.hor_len === undefined) {
-        throw new Error(`length undefined in second sizing\n`);
-      }
-      let desired_hor = node_.hor_len - 2 * PAD_SIZE - FUNC_ARG_SIZE;
-      let desired_ver = node_.ver_len - 2 * PAD_SIZE;
-      node_.node.hor_len = desired_hor;
-      node_.node.ver_len = desired_ver;
-      node_.node = addSizesHappyRobot(node_.node);
-      node = node_;
-      break;
-    }
-    case "nstack1": {
-      let node_ = <ast.ASTNStack1>node;
-      if (node_.ver_len === undefined || node_.hor_len === undefined) {
-        throw new Error(`length undefined in second sizing\n`);
-      }
-      let desired_hor = node_.hor_len - 2 * PAD_SIZE - FUNC_ARG_SIZE;
-      let desired_ver = node_.ver_len - 2 * PAD_SIZE;
-      node_.node.hor_len = desired_hor;
-      node_.node.ver_len = desired_ver;
-      node_.node = addSizesHappyRobot(node_.node);
-      node = node_;
-      break;
-    }
-    default: {
-      break;
-    }
-  }
-  console.log("happy robot! ", node);
-  return node;
-}
 export function addSizes(node: ast.ASTNode): ast.ASTNode {
+  if (!node) {
+    throw new Error("undefined node in addSizes");
+  }
   node.hor_len = 0;
   node.ver_len = 0;
-  switch (node.kind) {
-    case "transform": {
-      let node_ = <ast.ASTTransform>node;
-      let snode = addSizes(node_.node);
-      if (snode.hor_len !== undefined && snode.ver_len !== undefined) {
-        node.hor_len += snode.hor_len + FUNC_ARG_SIZE;
-        +2 * PAD_SIZE;
-        node.ver_len += snode.ver_len + 2 * PAD_SIZE;
-      }
-      break;
-    }
-    case "const": {
-      node.hor_len = BASE_SIZE;
-      node.ver_len = BASE_SIZE;
-      break;
-    }
-    case "spider": {
-      node.hor_len = BASE_SIZE;
-      node.ver_len = BASE_SIZE;
-      break;
-    }
-    case "var": {
-      node.hor_len = BASE_SIZE;
-      node.ver_len = BASE_SIZE;
-      break;
-    }
-    case "stack": {
-      let node_ = <ast.ASTStack>node;
-      let sleft = addSizes(node_.left);
-      let sright = addSizes(node_.right);
-      if (sleft.hor_len !== undefined && sright.hor_len !== undefined) {
-        node.hor_len += Math.max(sleft.hor_len, sright.hor_len) + 2 * PAD_SIZE;
-      } else {
-        throw new Error(
-          `Could not size children of ${node} as stack node: horizontal len`
-        );
-      }
-      if (sleft.ver_len !== undefined && sright.ver_len !== undefined) {
-        node.ver_len +=
-          sleft.ver_len + sright.ver_len + PAD_SIZE + 2 * PAD_SIZE;
-      } else {
-        throw new Error(
-          `Could not size children of ${node} as stack node: vertical len`
-        );
-      }
-      break;
-    }
-    case "compose": {
-      let node_ = <ast.ASTCompose>node;
-      let sleft = addSizes(node_.left);
-      let sright = addSizes(node_.right);
-      if (sleft.ver_len !== undefined && sright.ver_len !== undefined) {
-        node.ver_len += Math.max(sleft.ver_len, sright.ver_len) + 2 * PAD_SIZE;
-      } else {
-        throw new Error(
-          `Could not size children of ${node} as compose node: horizontal len`
-        );
-      }
-      if (sleft.hor_len !== undefined && sright.hor_len !== undefined) {
-        node.hor_len +=
-          sleft.hor_len + sright.hor_len + PAD_SIZE + 2 * PAD_SIZE;
-      } else {
-        throw new Error(
-          `Could not size children of ${node} as compose node: vertical len`
-        );
-      }
-      break;
-    }
-    case "nstack": {
-      let node_ = <ast.ASTNStack>node;
-      node_.node = addSizes(node_.node);
-      if (
-        node_.node.ver_len !== undefined &&
-        node_.node.hor_len !== undefined
-      ) {
-        node.ver_len += node_.node.ver_len + 2 * PAD_SIZE;
-        node.hor_len += node_.node.hor_len + FUNC_ARG_SIZE + 2 * PAD_SIZE;
-      } else {
-        throw new Error(`Could not size node ${node} as nstack node`);
-      }
-      break;
-    }
-    case "nstack1": {
-      let node_ = <ast.ASTNStack1>node;
-      node_.node = addSizes(node_.node);
-      if (
-        node_.node.ver_len !== undefined &&
-        node_.node.hor_len !== undefined
-      ) {
-        node.ver_len += node_.node.ver_len + 2 * PAD_SIZE;
-        node.hor_len += node_.node.hor_len + FUNC_ARG_SIZE + 2 * PAD_SIZE;
-      } else {
-        throw new Error(`Could not size node ${node} as nstack1 node`);
-      }
-      break;
-    }
-    case "cast": {
-      let node_ = <ast.ASTCast>node;
-      let inner_node = addSizes(node_.node);
-      if (
-        inner_node.ver_len !== undefined &&
-        inner_node.hor_len !== undefined
-      ) {
-        node.ver_len += inner_node.ver_len + 2 * PAD_SIZE;
-        node.hor_len += inner_node.hor_len + 2 * CAST_SIZE;
-      }
-      break;
-    }
-    case "function": {
-      let node_ = <ast.ASTFunc>node;
-      for (let arg of node_.args) {
-        if (NUMBER_KINDS.includes(arg.kind)) {
-          node.hor_len += FUNC_ARG_SIZE;
-        } else {
-          let arg_ = <ast.ASTNode>arg;
-          arg_ = addSizes(arg_);
-          if (arg_.ver_len !== undefined && arg_.hor_len !== undefined) {
-            node.ver_len += arg_.ver_len;
-            node.hor_len += arg_.hor_len;
-          } else {
-            throw new Error(`could not size arg ${arg_} while sizing function`);
-          }
-        }
-      }
-      node.hor_len += FUNC_ARG_SIZE + (node_.args.length + 1) * PAD_SIZE;
-      node.ver_len += 2 * PAD_SIZE;
-      break;
-    }
-    case "propto": {
-      let node_ = <ast.ASTPropTo>node;
-      let sleft = addSizes(node_.l);
-      let sright = addSizes(node_.r);
-      if (sleft.ver_len !== undefined && sright.ver_len !== undefined) {
-        node.ver_len += Math.max(sleft.ver_len, sright.ver_len) + 2 * PAD_SIZE;
+  switch (node.type) {
+    case "MorphEquiv": {
+      let l_node: ast.ASTNode = node.l;
+      let r_node: ast.ASTNode = node.r;
+      l_node = addSizes(l_node);
+      r_node = addSizes(r_node);
+
+      if (l_node.ver_len !== undefined && r_node.ver_len !== undefined) {
+        node.ver_len += Math.max(l_node.ver_len, r_node.ver_len) + 2 * PAD_SIZE;
       } else {
         throw new Error(
           `Could not size children of ${node} as propto node: horizontal len`
         );
       }
-      if (sleft.hor_len !== undefined && sright.hor_len !== undefined) {
+      if (l_node.hor_len !== undefined && r_node.hor_len !== undefined) {
         node.hor_len +=
-          sleft.hor_len + sright.hor_len + PROPTO_SIZE + 4 * PAD_SIZE;
+          l_node.hor_len + r_node.hor_len + MORPH_EQUIV_SIZE + 4 * PAD_SIZE;
       } else {
         throw new Error(
           `Could not size children of ${node} as propto node: vertical len`
@@ -258,28 +41,190 @@ export function addSizes(node: ast.ASTNode): ast.ASTNode {
       }
       break;
     }
-    case "nwire": {
-      let snode: ast.ASTConst = {
-        kind: "const",
-        val: ast.ZXConst.Wire,
-      };
-      snode = <ast.ASTConst>addSizes(snode);
-      if (snode.ver_len !== undefined && snode.hor_len !== undefined) {
-        node.ver_len += snode.ver_len;
-        node.hor_len += snode.hor_len;
+    case "MorphVar": {
+      node.hor_len = BASE_SIZE;
+      node.ver_len = BASE_SIZE;
+      break;
+    }
+    case "MorphId": {
+      node.hor_len = BASE_SIZE;
+      node.ver_len = BASE_SIZE;
+      break;
+    }
+    case "MorphInv": {
+      let on_node: ast.ASTNode = node.on;
+      on_node = addSizes(on_node);
+      on_node = addSizes(on_node);
+      if (on_node.hor_len !== undefined && on_node.ver_len !== undefined) {
+        node.hor_len += on_node.hor_len + FUNC_ARG_SIZE;
+        +2 * PAD_SIZE;
+        node.ver_len += on_node.ver_len + 2 * PAD_SIZE;
+      }
+      break;
+    }
+    case "MorphCompose": {
+      let l_node: ast.ASTNode = node.l;
+      let r_node: ast.ASTNode = node.r;
+      l_node = addSizes(l_node);
+      r_node = addSizes(r_node);
+      if (l_node.ver_len !== undefined && r_node.ver_len !== undefined) {
+        node.ver_len += Math.max(l_node.ver_len, r_node.ver_len) + 2 * PAD_SIZE;
       } else {
-        throw new Error(`Could not size node ${node} as nwire node`);
+        throw new Error(
+          `Could not size children of ${node} as compose node: horizontal len`
+        );
+      }
+      if (l_node.hor_len !== undefined && r_node.hor_len !== undefined) {
+        node.hor_len +=
+          l_node.hor_len + r_node.hor_len + PAD_SIZE + 2 * PAD_SIZE;
+      } else {
+        throw new Error(
+          `Could not size children of ${node} as compose node: vertical len`
+        );
+      }
+      break;
+    }
+    case "MorphTensor": {
+      let l_node: ast.ASTNode = node.l;
+      let r_node: ast.ASTNode = node.r;
+      l_node = addSizes(l_node);
+      r_node = addSizes(r_node);
+      if (l_node.hor_len !== undefined && r_node.hor_len !== undefined) {
+        node.hor_len += Math.max(l_node.hor_len, r_node.hor_len) + 2 * PAD_SIZE;
+      } else {
+        throw new Error(
+          `Could not size children of ${node} as stack node: horizontal len`
+        );
+      }
+      if (l_node.ver_len !== undefined && r_node.ver_len !== undefined) {
+        node.ver_len +=
+          l_node.ver_len + r_node.ver_len + PAD_SIZE + 2 * PAD_SIZE;
+      } else {
+        throw new Error(
+          `Could not size children of ${node} as stack node: vertical len`
+        );
+      }
+      break;
+    }
+    case "MorphDagger": {
+      let f_node: ast.ASTNode = node.f;
+      f_node = addSizes(f_node);
+      if (f_node.hor_len !== undefined && f_node.ver_len !== undefined) {
+        node.hor_len += f_node.hor_len + FUNC_ARG_SIZE;
+        +2 * PAD_SIZE;
+        node.ver_len += f_node.ver_len + 2 * PAD_SIZE;
+      }
+      break;
+    }
+    // for isomorphism, we size the outer node itself, and only use typing info from the inner node.
+    // switch??
+    case "Isomorphism": {
+      let node_: ast.Isomorph = node.i;
+      switch (node_.type) {
+        case "IsomorphVar": {
+          node.hor_len = BASE_SIZE;
+          node.ver_len = BASE_SIZE;
+          break;
+        }
+        case "LeftUnitor": {
+          node.hor_len = BASE_SIZE;
+          node.ver_len = BASE_SIZE;
+          break;
+        }
+        case "RightUnitor": {
+          node.hor_len = BASE_SIZE;
+          node.ver_len = BASE_SIZE;
+          break;
+        }
+        case "Associator": {
+          node.hor_len = BASE_SIZE;
+          node.ver_len = BASE_SIZE;
+          break;
+        }
+        case "Braiding": {
+          node.hor_len = BASE_SIZE;
+          node.ver_len = BASE_SIZE;
+          break;
+        }
+        default: {
+          throw new Error(
+            `addSizes: isomorphism: unknown node type ${node.type}`
+          );
+        }
       }
       break;
     }
     default: {
-      throw new Error(`Unknown kind: ${node.kind}`);
     }
   }
-  // console.log("before happy robot: ", node);
   node = addSizesHappyRobot(node);
-  // console.log("after happy robot: ", node);
   return node;
+}
+
+export function addSizesHappyRobot(node_: ast.ASTNode): ast.ASTNode {
+  switch (node_.type) {
+    case "MorphCompose": {
+      if (node_.ver_len === undefined || node_.hor_len === undefined) {
+        throw new Error(`length undefined in second sizing\n`);
+      }
+      let desired_hor = node_.hor_len - 3 * PAD_SIZE;
+      let desired_ver = node_.ver_len - 2 * PAD_SIZE;
+      let sleft = JSON.parse(JSON.stringify(node_.l));
+      let sright = JSON.parse(JSON.stringify(node_.r));
+      node_.l.hor_len = Number(
+        (
+          (sleft.hor_len! /
+            Number((sleft.hor_len! + sright.hor_len!).toFixed(0))) *
+          desired_hor
+        ).toFixed(0)
+      );
+      node_.r.hor_len = Number(
+        (
+          (sright.hor_len! /
+            Number((sleft.hor_len! + sright.hor_len!).toFixed(0))) *
+          desired_hor
+        ).toFixed(0)
+      );
+      node_.l.ver_len = desired_ver;
+      node_.r.ver_len = desired_ver;
+      node_.l = addSizesHappyRobot(node_.l) as ast.Morph;
+      node_.r = addSizesHappyRobot(node_.r) as ast.Morph;
+      node_ = node_;
+      break;
+    }
+    case "MorphTensor": {
+      if (node_.ver_len === undefined || node_.hor_len === undefined) {
+        throw new Error(`length undefined in second sizing\n`);
+      }
+      let desired_hor = node_.hor_len - 2 * PAD_SIZE;
+      let desired_ver = node_.ver_len - 3 * PAD_SIZE;
+      let sleft = JSON.parse(JSON.stringify(node_.l));
+      let sright = JSON.parse(JSON.stringify(node_.r));
+      node_.l.hor_len = desired_hor;
+      node_.r.hor_len = desired_hor;
+      node_.l.ver_len = Number(
+        (
+          (sleft.ver_len! /
+            Number((sleft.ver_len! + sright.ver_len!).toFixed(0))) *
+          desired_ver
+        ).toFixed(0)
+      );
+      node_.r.ver_len = Number(
+        (
+          (sright.ver_len! /
+            Number((sleft.ver_len! + sright.ver_len!).toFixed(0))) *
+          desired_ver
+        ).toFixed(0)
+      );
+      node_.l = addSizesHappyRobot(node_.l) as ast.Morph;
+      node_.r = addSizesHappyRobot(node_.r) as ast.Morph;
+      break;
+    }
+    default: {
+      break;
+    }
+  }
+  return node_;
 }
 
 export function determineCanvasWidthHeight(
