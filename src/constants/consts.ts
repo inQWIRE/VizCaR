@@ -25,6 +25,8 @@ export const OBJ_TENSOR = "×"; //  x × y, at level 40, left assoc
 export const MORPH_TENSOR = "⊗"; // x ⊗ y, at level 40, left assoc
 export const LEFT_UNITOR = "λ_"; // λ_ A, at level 30
 export const RIGHT_UNITOR = "ρ_"; // ρ_ A, at level 30
+export const ASSOCIATOR = "α_"; //  α_ A , B , M
+
 
 // Braided Monoidal
 export const BRAID = "B_"; // B_ x , y, at level 39
@@ -39,3 +41,4 @@ export const DAGGER = "†"; // f †, at level 0
 export const WIRE = "—";
 export const LEFT_UNITOR_RENDER = "λ";
 export const RIGHT_UNITOR_RENDER = "ρ";
+export const BRAID_RENDER = "×";

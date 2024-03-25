@@ -102,7 +102,7 @@ function applyIsomorphismVar(tok: Token): Morph | undefined {
       return undefined;
     }
     if (ctx_node !== undefined) {
-      return ctx_node as Morph;
+      return JSON.parse(JSON.stringify(ctx_node)) as Morph;
     }
   }
   // console.log("Gamma undefined in applyIsomorphismVar, ", v);
@@ -178,7 +178,7 @@ function applyMorphismVar(tok: Token): Morph | undefined {
       // throw new Error("explicitly not a morphism in ctx!!");
     }
     if (ctx_node !== undefined) {
-      return ctx_node as Morph;
+      return JSON.parse(JSON.stringify(ctx_node)) as Morph;
     }
   }
   // console.log("Gamma undefined in applyMorphismVar, ", v);
@@ -245,6 +245,7 @@ function applyMorphismDagger(f: Morph | undefined): Morph | undefined {
 
 MORPH_L0.setPattern(
   alt(
+    kmid(tok(lex.TokenKind.LParen), MORPH_L65, tok(lex.TokenKind.RParen)),
     apply(tok(lex.TokenKind.VarToken), applyMorphismVar.bind(Γ)),
     ISOMORPH,
     apply(

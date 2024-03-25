@@ -3,11 +3,12 @@
 import * as vscode from "vscode";
 import * as parser from "./parsing/parser";
 import * as sizer from "./parsing/sizes";
-// import * as coord from "./parsing/coords";
+import * as coord from "./parsing/coords";
 import * as lex from "./parsing/lexer";
 import { boundary, setCanvasWidthHeight } from "./constants/variableconsts";
 import * as vconsts from "./constants/variableconsts";
 import * as ast from "./parsing/ast";
+import { getCanvasHtml } from "./webview/webview";
 // import { getCanvasHtml } from "./webview/webview";
 
 let openWebview: vscode.WebviewPanel | undefined = undefined;
@@ -27,26 +28,26 @@ export function activate(context: vscode.ExtensionContext) {
   //     .then((expr) => renderCallback(context, expr));
   // });
   // context.subscriptions.push(disposable);
-  let disposable = vscode.commands.registerCommand("vizcar.lspRender", (expr) =>
-    renderCallback(context, expr)
+  let disposable = vscode.commands.registerCommand(
+    "vizcar.lspRender",
+    (expr) => {
+      renderCallback(context, expr);
+      vscode.window.showInformationMessage(
+        "Automatic rendering is now turned on."
+      );
+    }
   );
   context.subscriptions.push(disposable);
-  // disposable = vscode.commands.registerCommand("vizx.activateRendering", () => {
-  //   vscode.window.showInformationMessage(
-  //     "Automatic rendering is now turned on."
-  //   );
-  // });
-  // context.subscriptions.push(disposable);
-  // disposable = vscode.commands.registerCommand(
-  //   "vizx.deactivateRendering",
-  //   () => {
-  //     deactivate();
-  //     vscode.window.showInformationMessage(
-  //       "Automatic rendering is now turned off."
-  //     );
-  //   }
-  // );
-  // context.subscriptions.push(disposable);
+  disposable = vscode.commands.registerCommand(
+    "vizcar.deactivateRendering",
+    () => {
+      deactivate();
+      vscode.window.showInformationMessage(
+        "Automatic rendering is now turned off."
+      );
+    }
+  );
+  context.subscriptions.push(disposable);
 }
 
 function renderCallback(context: vscode.ExtensionContext, expr: any) {
@@ -70,11 +71,11 @@ function renderCallback(context: vscode.ExtensionContext, expr: any) {
   let node: ast.ASTNode;
   try {
     node = parser.parseAST(expr);
-    //   node = sizer.addSizes(node);
-    //   console.log("sized node: ", node);
-    //   const size = sizer.determineCanvasWidthHeight(node);
-    //   setCanvasWidthHeight(size);
-    //   node = coord.addCoords(node, boundary);
+    node = sizer.addSizes(node);
+    console.log("sized node: ", node);
+    const size = sizer.determineCanvasWidthHeight(node);
+    setCanvasWidthHeight(size);
+    node = coord.addCoords(node, boundary);
   } catch (e) {
     if (e instanceof Error) {
       console.log(e.stack);
@@ -84,33 +85,33 @@ function renderCallback(context: vscode.ExtensionContext, expr: any) {
     );
     return;
   }
-  // if (openWebview !== undefined) {
-  //   openWebview.dispose();
-  // }
-  // const panel = vscode.window.createWebviewPanel(
-  //   "ViZX",
-  //   `ViZX: ${expr}`,
-  //   {
-  //     viewColumn: vscode.ViewColumn.Three,
-  //     preserveFocus: true,
-  //   },
-  //   {
-  //     enableScripts: true,
-  //     retainContextWhenHidden: true,
-  //   }
-  // );
-  // panel.onDidDispose(
-  //   async () => {
-  //     console.log("openWebview before: ", openWebview);
-  //     openWebview = undefined;
-  //   },
-  //   null,
-  //   context.subscriptions
-  // );
-  // openWebview = panel;
-  // panel.webview.html = getCanvasHtml(panel, context);
-  // panel.webview.onDidReceiveMessage((msg) => console.log(msg));
-  // panel.webview.postMessage({ command: JSON.stringify(node) });
+  if (openWebview !== undefined) {
+    openWebview.dispose();
+  }
+  const panel = vscode.window.createWebviewPanel(
+    "VizCaR",
+    `VizCaR: ${expr.ty}`,
+    {
+      viewColumn: vscode.ViewColumn.Three,
+      preserveFocus: true,
+    },
+    {
+      enableScripts: true,
+      retainContextWhenHidden: true,
+    }
+  );
+  panel.onDidDispose(
+    async () => {
+      console.log("openWebview before: ", openWebview);
+      openWebview = undefined;
+    },
+    null,
+    context.subscriptions
+  );
+  openWebview = panel;
+  panel.webview.html = getCanvasHtml(panel, context);
+  panel.webview.onDidReceiveMessage((msg) => console.log(msg));
+  panel.webview.postMessage({ command: JSON.stringify(node) });
 }
 
 // this method is called when your extension is deactivated
