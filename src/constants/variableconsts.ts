@@ -4,6 +4,7 @@ export let CANVAS_HEIGHT = 100;
 // SCALE = size of base square, ideally do not go below 100 or it'll be too small
 export let SCALE = 100;
 export let LINE_WIDTH = SCALE / 200;
+export let ISO_LINE_WIDTH = LINE_WIDTH * 4;
 export let BASE_SIZE = 1 * SCALE;
 export let PAD_SIZE = 0.1 * SCALE;
 export let MORPH_EQUIV_SIZE = 0.2 * SCALE;

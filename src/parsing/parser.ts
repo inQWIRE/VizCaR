@@ -19,6 +19,7 @@ import { CatObject, Isomorph, Morph, Prop, ASTNode } from "./ast";
 import * as c from "../constants/consts";
 import * as lex from "./lexer";
 import { lexerWithPrettyPrinter } from "./lexer";
+import assert = require("assert");
 
 type Token = psec.Token<lex.TokenKind>;
 
@@ -30,6 +31,7 @@ export function parseAST(expr: any): ASTNode {
     let parsed_candidates_2 = parsed.candidates.filter(
       (x) => x.result !== undefined
     );
+    assert(parsed_candidates_2.length === 1);
     return parsed_candidates_2[0].result as Prop;
   }
   throw new Error(`unsuccessful parse: ${expr.ty}`);
@@ -362,7 +364,6 @@ export function nodeFromContext(
       name: name,
     } as Morph;
   }
-
   return undefined;
 }
 

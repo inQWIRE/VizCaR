@@ -1,24 +1,29 @@
-// import * as ast from "../parsing/ast";
-// import * as c from "../constants/consts";
-// import * as v from "../constants/variableconsts";
-// import { findCenter, findLeftCenter, findRightCenter } from "../parsing/coords";
-// import { quad } from "../constants/types";
-// import { determineCanvasWidthHeight } from "../parsing/sizes";
+import * as ast from "../parsing/ast";
+import * as c from "../constants/consts";
+import * as v from "../constants/variableconsts";
+import { findCenter, findLeftCenter, findRightCenter } from "../parsing/coords";
+import { quad } from "../constants/types";
+import { determineCanvasWidthHeight } from "../parsing/sizes";
+import {
+  ISO_LINE_WIDTH,
+  LINE_WIDTH,
+  TEXT_PAD_SIZE,
+} from "../constants/variableconsts";
 
-// const canvas = document.querySelector("canvas")!;
-// const ctx = canvas.getContext("2d")!;
-// ctx.lineWidth = v.LINE_WIDTH;
-// // // colors
-// const white = "#FFFFFF";
-// const black = "#000000";
-// const red = "#FFA4A4";
-// const green = "#A4FFA4";
-// const gray = "#303030";
-// const white_trans = "rgba(255, 255, 255, 0.5)";
-// // just for testing
-// // canvas.width = CANVAS_WIDTH;
-// // canvas.height = CANVAS_HEIGHT;
-// // canvas_format();
+const canvas = document.querySelector("canvas")!;
+const ctx = canvas.getContext("2d")!;
+ctx.lineWidth = v.LINE_WIDTH;
+// // colors
+const white = "#FFFFFF";
+const black = "#000000";
+const red = "#FFA4A4";
+const green = "#A4FFA4";
+const gray = "#303030";
+const white_trans = "rgba(255, 255, 255, 0.5)";
+// just for testing
+// canvas.width = CANVAS_WIDTH;
+// canvas.height = CANVAS_HEIGHT;
+// canvas_format();
 
 // // function drawFunctionNode(node: ast.ASTNode) {
 // //   let func = <ast.ASTFunc>node;
@@ -512,102 +517,116 @@
 // // }
 
 // // // fit text within max width
-// function wrapText(
-//   text: string,
-//   x: number,
-//   y: number,
-//   maxWidth: number,
-//   lineHeight: number,
-//   background: boolean
-// ) {
-//   let separated = text.split("(");
-//   let line = "";
-//   let lc = 0;
-//   for (let i = 0; i < separated.length; i++) {
-//     let testLine = line.concat(separated[i]);
-//     if (i !== separated.length - 1) {
-//       testLine = testLine.concat("(");
-//     }
-//     let metrics = ctx.measureText(testLine);
-//     let testWidth = metrics.width;
-//     if (testWidth > maxWidth && i > 0) {
-//       lc++;
-//       line = separated[i];
-//       if (i !== separated.length - 1) {
-//         line = line.concat("(");
-//       }
-//     } else {
-//       line = testLine;
-//     }
-//   }
-//   line = "";
-//   y -= (lc / 2) * lineHeight;
-//   for (let i = 0; i < separated.length; i++) {
-//     let testLine = line.concat(separated[i]);
-//     if (i !== separated.length - 1) {
-//       testLine = testLine.concat("(");
-//     }
-//     let metrics = ctx.measureText(testLine);
-//     let testWidth = metrics.width;
-//     if (testWidth > maxWidth && i > 0) {
-//       if (background) {
-//         ctx.fillText(Array(line.length).fill("█").join(""), x, y);
-//       }
-//       ctx.fillText(line, x, y);
-//       line = separated[i];
-//       if (i !== separated.length - 1) {
-//         line = line.concat("(");
-//       }
-//       y += lineHeight;
-//     } else {
-//       line = testLine;
-//     }
-//   }
-//   if (background) {
-//     ctx.fillText(Array(line.length).fill("█").join(""), x, y);
-//   }
-//   ctx.fillText(line, x, y);
-// }
+function wrapText(
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  lineHeight: number,
+  background: boolean
+) {
+  let separated = text.split("(");
+  let line = "";
+  let lc = 0;
+  for (let i = 0; i < separated.length; i++) {
+    let testLine = line.concat(separated[i]);
+    if (i !== separated.length - 1) {
+      testLine = testLine.concat("(");
+    }
+    let metrics = ctx.measureText(testLine);
+    let testWidth = metrics.width;
+    if (testWidth > maxWidth && i > 0) {
+      lc++;
+      line = separated[i];
+      if (i !== separated.length - 1) {
+        line = line.concat("(");
+      }
+    } else {
+      line = testLine;
+    }
+  }
+  line = "";
+  y -= (lc / 2) * lineHeight;
+  for (let i = 0; i < separated.length; i++) {
+    let testLine = line.concat(separated[i]);
+    if (i !== separated.length - 1) {
+      testLine = testLine.concat("(");
+    }
+    let metrics = ctx.measureText(testLine);
+    let testWidth = metrics.width;
+    if (testWidth > maxWidth && i > 0) {
+      if (background) {
+        ctx.fillText(Array(line.length).fill("█").join(""), x, y);
+      }
+      ctx.fillText(line, x, y);
+      line = separated[i];
+      if (i !== separated.length - 1) {
+        line = line.concat("(");
+      }
+      y += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  if (background) {
+    ctx.fillText(Array(line.length).fill("█").join(""), x, y);
+  }
+  ctx.fillText(line, x, y);
+}
 
-// function text_format(loc: string, text: string) {
-//   let small_text = v.SMALL_TEXT;
-//   if (text.length > 15) {
-//     small_text = v.REALLY_SMALL_TEXT;
-//   }
-//   switch (loc) {
-//     case "category": {
-//       ctx.font = small_text.concat(" ").concat(v.MONOSPACE_FONT);
-//       ctx.textBaseline = "middle";
-//       ctx.textAlign = "center";
-//       ctx.fillStyle = gray;
-//       break;
-//     }
-//     case "morphism_name": {
-//       if (text.length > 9) {
-//         ctx.font = v.SMALL_TEXT.concat(" ").concat(v.ARIAL_FONT);
-//       } else {
-//         ctx.font = v.MEDIUM_TEXT.concat(" ").concat(v.ARIAL_FONT);
-//       }
-//       ctx.textAlign = "center";
-//       ctx.textBaseline = "middle";
-//       ctx.fillStyle = black;
-//       break;
-//     }
-//     default: {
-//       if (text.length > 15) {
-//         ctx.font = v.REALLY_SMALL_TEXT.concat(" ").concat(v.ARIAL_FONT);
-//       } else if (text.length > 10) {
-//         ctx.font = v.SMALL_TEXT.concat(" ").concat(v.ARIAL_FONT);
-//       } else {
-//         ctx.font = v.MEDIUM_TEXT.concat(" ").concat(v.ARIAL_FONT);
-//       }
-//       ctx.textAlign = "center";
-//       ctx.textBaseline = "middle";
-//       ctx.fillStyle = black;
-//       break;
-//     }
-//   }
-// }
+function text_format(loc: string, text: string) {
+  let small_text = v.SMALL_TEXT;
+  if (text.length > 15) {
+    small_text = v.REALLY_SMALL_TEXT;
+  }
+  switch (loc) {
+    case "in_out": {
+      ctx.font = small_text.concat(" ").concat(v.MONOSPACE_FONT);
+      ctx.textBaseline = "middle";
+      ctx.textAlign = "center";
+      ctx.fillStyle = gray;
+      break;
+    }
+    case "label": {
+      if (text.length > 9) {
+        ctx.font = v.SMALL_TEXT.concat(" ").concat(v.ARIAL_FONT);
+      } else {
+        ctx.font = v.MEDIUM_TEXT.concat(" ").concat(v.ARIAL_FONT);
+      }
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = black;
+      break;
+    }
+    case "iso_label": {
+      if (text.length > 9) {
+        ctx.font = "italic bold"
+          .concat(v.SMALL_TEXT)
+          .concat(" ")
+          .concat(v.ARIAL_FONT);
+      } else {
+        ctx.font = v.MEDIUM_TEXT.concat(" ").concat(v.ARIAL_FONT);
+      }
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = black;
+      break;
+    }
+    default: {
+      if (text.length > 15) {
+        ctx.font = v.REALLY_SMALL_TEXT.concat(" ").concat(v.ARIAL_FONT);
+      } else if (text.length > 10) {
+        ctx.font = v.SMALL_TEXT.concat(" ").concat(v.ARIAL_FONT);
+      } else {
+        ctx.font = v.MEDIUM_TEXT.concat(" ").concat(v.ARIAL_FONT);
+      }
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = black;
+      break;
+    }
+  }
+}
 // //     case "spider_in_out_background": {
 // //       ctx.font = small_text.concat(" ").concat(MONOSPACE_FONT);
 // //       ctx.textAlign = "center";
@@ -718,95 +737,246 @@
 // //   }
 // // }
 
-// function draw(node: ast.ASTNode) {
-//   switch (node.kind) {
-//     case "Morphism": {
-//       drawMorphismNode(node);
-//       break;
-//     }
-//     case "Inverse": {
-//       drawInverseNode(node);
-//     }
-//     default: {
-//       throw new Error("Unknown kind in draw");
-//     }
-//   }
-// }
-// //     case "spider": {
-// //       drawBaseNode(node);
-// //       break;
-// //     }
-// //     case "var": {
-// //       drawBaseNode(node);
-// //     }
-// //     case "const": {
-// //       drawBaseNode(node);
-// //       break;
-// //     }
-// //     case "stack": {
-// //       drawStackNode(node);
-// //       break;
-// //     }
-// //     case "compose": {
-// //       drawComposeNode(node);
-// //       break;
-// //     }
-// //     case "nstack": {
-// //       drawNStackNode(node);
-// //       break;
-// //     }
-// //     case "nstack1": {
-// //       drawNStack1Node(node);
-// //       break;
-// //     }
-// //     case "cast": {
-// //       drawCastNode(node);
-// //       break;
-// //     }
-// //     case "nwire": {
-// //       drawNWireNode(node);
-// //       break;
-// //     }
-// //     case "propto": {
-// //       drawPropToNode(node);
-// //       break;
-// //     }
-// //     case "transform": {
-// //       drawTransformNode(node);
-// //       break;
-// //     }
-// //     case "function": {
-// //       drawFunctionNode(node);
-// //       break;
-// //     }
-// //     default: {
-// //       console.log("unkown kind in render, ", node.kind);
-// //       throw new Error("unknown kind in render");
-// //     }
-// //   }
-// // }
+function drawBraidNode(node: ast.ASTNode) {}
 
-// function render(this: Window, msg: MessageEvent<any>) {
-//   let command = msg.data.command;
-//   let node: ast.ASTNode = JSON.parse(command);
-//   v.setCanvasWidthHeight(determineCanvasWidthHeight(node));
-//   formatCanvas();
-//   console.log("b4 drawing really small text = ", v.REALLY_SMALL_TEXT);
-//   draw(node);
-// }
+function drawBaseNodeMorph(node: ast.ASTNode) {
+  ctx.fillStyle = white;
+  ctx.setLineDash([]);
+  ctx.lineWidth = LINE_WIDTH;
+  if (node.type === "Isomorphism") {
+    ctx.lineWidth = ISO_LINE_WIDTH;
+  }
+  ctx.strokeStyle = black;
+  let inp: string | undefined = undefined;
+  let outp: string | undefined = undefined;
+  let label: string;
+  switch (node.type) {
+    case "MorphVar": {
+      if (node.inp) {
+        inp = node.inp.as_text;
+      }
+      if (node.outp) {
+        outp = node.outp.as_text;
+      }
+      label = node.name;
+      break;
+    }
+    case "MorphId": {
+      inp = node.cat.as_text;
+      outp = node.cat.as_text;
+      label = c.WIRE;
+      break;
+    }
+    case "Isomorphism": {
+      let node_ = node.i;
+      switch (node_.type) {
+        case "IsomorphVar": {
+          if (node_.l) {
+            inp = node_.l.as_text;
+          }
+          if (node_.r) {
+            outp = node_.r.as_text;
+          }
+          label = node_.name;
+          break;
+        }
+        case "LeftUnitor": {
+          inp = "I ".concat(c.COMPOSE).concat(" ").concat(node_.a.as_text);
+          outp = node_.a.as_text;
+          label = c.LEFT_UNITOR_RENDER.concat(" ").concat(node_.a.as_text);
+          break;
+        }
+        case "RightUnitor": {
+          inp = node_.a.as_text.concat(" ").concat(c.COMPOSE).concat(" I");
+          outp = node_.a.as_text;
+          label = c.RIGHT_UNITOR_RENDER.concat(" ").concat(node_.a.as_text);
+          break;
+        }
+        default: {
+          throw new Error(`unknown isomorph`);
+        }
+      }
+      break;
+    }
+    default: {
+      throw new Error(`unknown base node ${node} in drawBaseNode`);
+    }
+  }
+  ctx.beginPath();
+  ctx.moveTo(node.boundary!.tl.x, node.boundary!.tl.y);
+  ctx.lineTo(node.boundary!.tr.x, node.boundary!.tr.y);
+  ctx.lineTo(node.boundary!.br.x, node.boundary!.br.y);
+  ctx.lineTo(node.boundary!.bl.x, node.boundary!.bl.y);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  let center = findCenter(node.boundary!);
+  let left = findLeftCenter(node.boundary!);
+  let right = findRightCenter(node.boundary!);
+  let max_width: number | undefined = undefined;
+  text_format("label", label);
+  if (node.type === "Isomorphism") {
+    text_format("iso_label", label);
+  }
+  max_width = node.hor_len! / 2;
+  if (ctx.measureText(label).width > max_width) {
+    wrapText(
+      label,
+      center.x,
+      center.y,
+      max_width,
+      ctx.measureText(label).actualBoundingBoxAscent +
+        ctx.measureText(label).actualBoundingBoxDescent,
+      false
+    );
+  } else {
+    ctx.fillText(label, center.x, center.y, max_width);
+  }
+  if (outp) {
+    ctx.save();
+    ctx.translate(right.x - TEXT_PAD_SIZE, right.y);
+    max_width = undefined;
+    if (outp.length > 2) {
+      ctx.rotate(-Math.PI / 2);
+      max_width = node.ver_len! - 2 * TEXT_PAD_SIZE;
+    }
+    // text_format("spider_in_out_background", outputs);
+    // const out_arr = Array(outputs.length).fill("█").join("");
+    // wrapText(
+    //   outputs,
+    //   0,
+    //   0,
+    //   max_width!,
+    //   ctx.measureText(outputs).actualBoundingBoxAscent +
+    //     ctx.measureText(outputs).actualBoundingBoxDescent,
+    //   true
+    // );
+    // ctx.fillText(out_arr, 0, 0, max_width);
+    text_format("in_out", outp);
+    wrapText(
+      outp,
+      0,
+      0,
+      max_width!,
+      ctx.measureText(outp).actualBoundingBoxAscent +
+        ctx.measureText(outp).actualBoundingBoxDescent,
+      false
+    );
+    // ctx.fillText(outputs, 0, 0, max_width);
+    ctx.restore();
+  }
+  if (inp) {
+    ctx.save();
+    max_width = undefined;
+    ctx.translate(left.x + TEXT_PAD_SIZE, left.y);
+    if (inp.length > 2) {
+      max_width = node.ver_len! - 2 * TEXT_PAD_SIZE;
+      ctx.rotate(Math.PI / 2);
+    }
+    // text_format("spider_in_out_background", inputs);
+    // const in_arr = Array(inputs.length).fill("█").join("");
+    // wrapText(
+    //   inputs,
+    //   0,
+    //   0,
+    //   max_width!,
+    //   ctx.measureText(inputs).actualBoundingBoxAscent +
+    //     ctx.measureText(inputs).actualBoundingBoxDescent,
+    //   true
+    // );
+    // ctx.fillText(in_arr, 0, 0, max_width);
+    text_format("in_out", inp);
+    wrapText(
+      inp,
+      0,
+      0,
+      max_width!,
+      ctx.measureText(inp).actualBoundingBoxAscent +
+        ctx.measureText(inp).actualBoundingBoxDescent,
+      false
+    );
+    // ctx.fillText(inputs, 0, 0, max_width);
+    ctx.restore();
+  }
+}
 
-// function formatCanvas() {
-//   console.log(
-//     "setting width, height in render: ",
-//     v.CANVAS_WIDTH,
-//     v.CANVAS_HEIGHT
-//   );
-//   canvas.width = v.CANVAS_WIDTH;
-//   canvas.height = v.CANVAS_HEIGHT;
-//   ctx.fillStyle = white;
-//   ctx.fillRect(0, 0, canvas.width, canvas.height);
-//   ctx.strokeStyle = black;
-// }
+function draw(node: ast.ASTNode) {
+  switch (node.type) {
+    case "MorphEquiv": {
+      break;
+    }
+    case "MorphVar": {
+      drawBaseNodeMorph(node);
+      break;
+    }
+    case "MorphId": {
+      drawBaseNodeMorph(node);
+      break;
+    }
+    case "MorphInv": {
+      break;
+    }
+    case "MorphCompose": {
+      break;
+    }
+    case "MorphTensor": {
+      break;
+    }
+    case "MorphDagger": {
+      break;
+    }
+    case "Isomorphism": {
+      let node_ = node.i as ast.Isomorph;
+      switch (node_.type) {
+        case "IsomorphVar": {
+          drawBaseNodeMorph(node);
+          break;
+        }
+        case "LeftUnitor": {
+          drawBaseNodeMorph(node);
+          break;
+        }
+        case "RightUnitor": {
+          drawBaseNodeMorph(node);
+          break;
+        }
+        case "Braiding": {
+          drawBraidNode(node);
+          break;
+        }
+        default: {
+          throw new Error("unknown type in draw, isomorph");
+        }
+      }
+    }
+
+    default: {
+      throw new Error("Unknown type in draw");
+    }
+  }
+}
+
+function render(this: Window, msg: MessageEvent<any>) {
+  let command = msg.data.command;
+  let node: ast.ASTNode = JSON.parse(command);
+  v.setCanvasWidthHeight(determineCanvasWidthHeight(node));
+  formatCanvas();
+  console.log("b4 drawing really small text = ", v.REALLY_SMALL_TEXT);
+  draw(node);
+}
+
+function formatCanvas() {
+  console.log(
+    "setting width, height in render: ",
+    v.CANVAS_WIDTH,
+    v.CANVAS_HEIGHT
+  );
+  canvas.width = v.CANVAS_WIDTH;
+  canvas.height = v.CANVAS_HEIGHT;
+  ctx.fillStyle = white;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = black;
+}
 
 // // // function downloadSVG() {
 // // //   const svgData = `
@@ -849,7 +1019,7 @@
 // // const downloadButtonPng = document.getElementById("download-button-png");
 // // downloadButtonPng!.addEventListener("click", downloadPNG);
 
-// // window.addEventListener("message", render);
+window.addEventListener("message", render);
 
-// // // esbuild auto reload
-// // new EventSource("/esbuild").addEventListener("change", () => location.reload());
+// esbuild auto reload
+new EventSource("/esbuild").addEventListener("change", () => location.reload());

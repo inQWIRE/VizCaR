@@ -34,3 +34,8 @@ export const OBJ_DUAL = "⋆"; // A ⋆, at level 0
 
 // Dagger
 export const DAGGER = "†"; // f †, at level 0
+
+// Render Util
+export const WIRE = "—";
+export const LEFT_UNITOR_RENDER = "λ";
+export const RIGHT_UNITOR_RENDER = "ρ";
