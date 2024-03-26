@@ -33,7 +33,7 @@ export function getCanvasHtml(
       <script>var exports = {};</script>
       <script defer type="text/javascript" nonce="${nonce}" src="${scriptUri}""></script>  </head>
   <body>
-       <canvas id="canvas"></canvas>
+       <canvas id="canvas" width="1024"></canvas>
   </body>
   </html>
 `;

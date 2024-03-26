@@ -11,7 +11,9 @@ export enum TokenKind {
   IdentityMorphismToken,
 
   ObjTensorToken,
+  ObjTensorToken2,
   MorphismTensorToken,
+  MorphismTensorToken2,
   LeftUnitorToken,
   RightUnitorToken,
   AssociatorToken,
@@ -52,10 +54,16 @@ export const lexer = buildLexer([
   [true, new RegExp(`\^${c.INVERSE}`, "g"), TokenKind.InverseToken],
 
   [true, new RegExp(`\^[${c.OBJ_TENSOR}]`, "g"), TokenKind.ObjTensorToken],
+  [true, new RegExp(`\^[${c.OBJ_TENSOR_2}]`, "g"), TokenKind.ObjTensorToken2],
   [
     true,
     new RegExp(`\^[${c.MORPH_TENSOR}]`, "g"),
     TokenKind.MorphismTensorToken,
+  ],
+  [
+    true,
+    new RegExp(`\^[${c.MORPH_TENSOR_2}]`, "g"),
+    TokenKind.MorphismTensorToken2,
   ],
   [true, new RegExp(`\^[${c.DAGGER}]`, "g"), TokenKind.DaggerToken],
 
@@ -65,6 +73,7 @@ export const lexer = buildLexer([
 export function lexerWithPrettyPrinter(
   expr: string
 ): Token<TokenKind> | undefined {
+  console.log("pretty printer");
   let lx = lexer.parse(expr);
   let lx_unchanged = JSON.parse(JSON.stringify(lx));
   let printlx = "";
