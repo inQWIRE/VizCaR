@@ -148,7 +148,6 @@ function text_format(loc: string, text: string) {
       ctx.fillStyle = gray;
       break;
     }
-
     case "label": {
       if (text.length > 9) {
         ctx.font = v.SMALL_TEXT.concat(" ").concat(v.ARIAL_FONT);
@@ -233,11 +232,12 @@ function drawBraidNode(node: ast.ASTNode) {
       ctx.fillText(c.BRAID_RENDER, center.x, center.y, max_width);
       // top right output
       ctx.save();
-      ctx.translate(right.x - TEXT_PAD_SIZE, top.y);
+      ctx.translate(right.x - TEXT_PAD_SIZE, top.y + TEXT_PAD_SIZE);
       max_width = undefined;
       if (outp.length > 2) {
-        ctx.rotate(-Math.PI / 2);
-        max_width = node.ver_len! - 2 * TEXT_PAD_SIZE;
+        ctx.translate(-2 * TEXT_PAD_SIZE, 0);
+        //   ctx.rotate(-Math.PI / 2);
+        //   max_width = node.ver_len! - 2 * TEXT_PAD_SIZE;
       }
       text_format("in_out", outp);
       wrapText(
@@ -253,11 +253,12 @@ function drawBraidNode(node: ast.ASTNode) {
       ctx.restore();
       ctx.save();
       // bottom left output
-      ctx.translate(left.x + TEXT_PAD_SIZE, bottom.y);
+      ctx.translate(left.x + TEXT_PAD_SIZE, bottom.y - TEXT_PAD_SIZE);
       max_width = undefined;
       if (outp.length > 2) {
-        ctx.rotate(Math.PI / 2);
-        max_width = node.ver_len! - 2 * TEXT_PAD_SIZE;
+        // ctx.rotate(Math.PI / 2);
+        ctx.translate(2 * TEXT_PAD_SIZE, 0);
+        // max_width = node.ver_len! - 2 * TEXT_PAD_SIZE;
       }
       text_format("in_out", outp);
       wrapText(
@@ -274,10 +275,11 @@ function drawBraidNode(node: ast.ASTNode) {
       // bottom right input
       ctx.save();
       max_width = undefined;
-      ctx.translate(right.x - TEXT_PAD_SIZE, bottom.y);
+      ctx.translate(right.x - TEXT_PAD_SIZE, bottom.y - TEXT_PAD_SIZE);
       if (inp.length > 2) {
-        max_width = node.ver_len! - 2 * TEXT_PAD_SIZE;
-        ctx.rotate(-Math.PI / 2);
+        // max_width = node.ver_len! - 2 * TEXT_PAD_SIZE;
+        ctx.translate(-2 * TEXT_PAD_SIZE, 0);
+        // ctx.rotate(-Math.PI / 2);
       }
       text_format("in_out", inp);
       wrapText(
@@ -294,10 +296,11 @@ function drawBraidNode(node: ast.ASTNode) {
       // top left input
       ctx.save();
       max_width = undefined;
-      ctx.translate(left.x + TEXT_PAD_SIZE, top.y);
+      ctx.translate(left.x + TEXT_PAD_SIZE, top.y + TEXT_PAD_SIZE);
       if (inp.length > 2) {
-        max_width = node.ver_len! - 2 * TEXT_PAD_SIZE;
-        ctx.rotate(Math.PI / 2);
+        ctx.translate(2 * TEXT_PAD_SIZE, 0);
+        // max_width = node.ver_len! - 2 * TEXT_PAD_SIZE;
+        // ctx.rotate(Math.PI / 2);
       }
       text_format("in_out", inp);
       wrapText(
@@ -437,7 +440,7 @@ function drawBaseNodeMorph(node: ast.ASTNode) {
             .concat(c.COMPOSE)
             .concat(" ")
             .concat(node_.m.as_text);
-          inp = node_.a.as_text
+          outp = node_.a.as_text
             .concat(" ")
             .concat(c.COMPOSE)
             .concat(" (")
@@ -446,7 +449,7 @@ function drawBaseNodeMorph(node: ast.ASTNode) {
             .concat(" ")
             .concat(node_.m.as_text)
             .concat(") ");
-          label = c.RIGHT_UNITOR_RENDER.concat(" ")
+          label = c.ASSOCIATOR.concat(" ")
             .concat(node_.a.as_text)
             .concat(", ")
             .concat(node_.b.as_text)

@@ -2,7 +2,7 @@ name: CI for Github
 
 on:
   push:
-    branches: ["master"]
+    branches: ["main"]
   pull_request:
     branches: ["**"]
   release:
@@ -13,7 +13,7 @@ jobs:
   build:
     strategy:
       matrix:
-        coq_version: ["8.16"]
+        coq_version: ["8.17"]
         os: ["ubuntu-latest"]
       fail-fast: false
     runs-on: ${{ matrix.os }}

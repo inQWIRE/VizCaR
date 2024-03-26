@@ -26,12 +26,13 @@ type Token = psec.Token<lex.TokenKind>;
 export function parseAST(expr: any): ASTNode {
   Γ = context(expr.hyps);
   console.log("ctx: ", Γ);
+  lexerWithPrettyPrinter(expr.ty);
   let parsed = PROP.parse(lex.lexer.parse(expr.ty));
   if (parsed.successful) {
     let parsed_candidates_2 = parsed.candidates.filter(
       (x) => x.result !== undefined
     );
-    assert(parsed_candidates_2.length === 1);
+    // assert(parsed_candidates_2.length === 1);
     return parsed_candidates_2[0].result as Prop;
   }
   console.log(parsed);
@@ -46,10 +47,10 @@ let Γ: undefined | Map<string, ASTNode> = undefined;
 const CAT_OBJECT_L0 = rule<lex.TokenKind, CatObject>();
 const CAT_OBJECT_L40 = rule<lex.TokenKind, CatObject>();
 const ISOMORPH = rule<lex.TokenKind, Morph | undefined>();
-const MORPH_L0 = rule<lex.TokenKind, Morph | undefined>();
+const MORPH_L15 = rule<lex.TokenKind, Morph | undefined>();
 const MORPH_L25 = rule<lex.TokenKind, Morph | undefined>();
+const MORPH_L34 = rule<lex.TokenKind, Morph | undefined>();
 const MORPH_L40 = rule<lex.TokenKind, Morph | undefined>();
-const MORPH_L65 = rule<lex.TokenKind, Morph | undefined>();
 const PROP = rule<lex.TokenKind, Prop | undefined>();
 
 function applyObjectVar(tok: Token): CatObject {
@@ -91,7 +92,13 @@ CAT_OBJECT_L0.setPattern(
 CAT_OBJECT_L40.setPattern(
   lrec_sc(
     CAT_OBJECT_L0,
-    kright(tok(lex.TokenKind.ObjTensorToken), CAT_OBJECT_L0),
+    kright(
+      alt(
+        tok(lex.TokenKind.ObjTensorToken),
+        tok(lex.TokenKind.ObjTensorToken2)
+      ),
+      CAT_OBJECT_L0
+    ),
     applyObjTensor
   )
 );
@@ -269,9 +276,10 @@ function applyMorphismDagger(f: Morph | undefined): Morph | undefined {
   return undefined;
 }
 
-MORPH_L0.setPattern(
+// ( morph ) | var | isomorph | id_ A
+MORPH_L15.setPattern(
   alt(
-    kmid(tok(lex.TokenKind.LParen), MORPH_L65, tok(lex.TokenKind.RParen)),
+    kmid(tok(lex.TokenKind.LParen), MORPH_L40, tok(lex.TokenKind.RParen)),
     apply(tok(lex.TokenKind.VarToken), applyMorphismVar.bind(Γ)),
     ISOMORPH,
     apply(
@@ -282,25 +290,27 @@ MORPH_L0.setPattern(
 );
 
 MORPH_L25.setPattern(
+  lrec_sc(MORPH_L15, tok(lex.TokenKind.InverseToken), applyMorphismInv)
+);
+
+MORPH_L34.setPattern(
   lrec_sc(
-    MORPH_L0,
-    kright(tok(lex.TokenKind.InverseToken), MORPH_L0),
-    applyMorphismInv
+    MORPH_L25,
+    kright(
+      alt(
+        tok(lex.TokenKind.MorphismTensorToken2),
+        tok(lex.TokenKind.MorphismTensorToken)
+      ),
+      MORPH_L25
+    ),
+    applyMorphismTensor
   )
 );
 
 MORPH_L40.setPattern(
   lrec_sc(
-    MORPH_L25,
-    kright(tok(lex.TokenKind.MorphismTensorToken), MORPH_L25),
-    applyMorphismTensor
-  )
-);
-
-MORPH_L65.setPattern(
-  lrec_sc(
-    MORPH_L40,
-    kright(tok(lex.TokenKind.ComposeToken), MORPH_L40),
+    MORPH_L34,
+    kright(tok(lex.TokenKind.ComposeToken), MORPH_L34),
     applyMorphismCompose
   )
 );
@@ -320,7 +330,7 @@ function applyMorphEquiv(
 
 PROP.setPattern(
   apply(
-    seq(MORPH_L65, kright(tok(lex.TokenKind.MorphismEquivToken), MORPH_L65)),
+    seq(MORPH_L40, kright(tok(lex.TokenKind.MorphismEquivToken), MORPH_L40)),
     applyMorphEquiv
   )
 );
