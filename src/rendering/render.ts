@@ -228,8 +228,23 @@ function drawBraidNode(node: ast.ASTNode) {
       let top = findTopCenter(node.boundary!);
       let bottom = findBottomCenter(node.boundary!);
       let max_width: number | undefined = undefined;
-      text_format("braid_middle", c.BRAID_RENDER);
-      ctx.fillText(c.BRAID_RENDER, center.x, center.y, max_width);
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(left.x + 2*v.PAD_SIZE, top.y + 2*v.PAD_SIZE);
+      ctx.lineTo(right.x - 2*v.PAD_SIZE, bottom.y - 2*v.PAD_SIZE);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(right.x - 2*v.PAD_SIZE, top.y + 2*v.PAD_SIZE);
+      ctx.lineTo(left.x + 2*v.PAD_SIZE, bottom.y - 2*v.PAD_SIZE);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+      
       // top right output
       ctx.save();
       ctx.translate(right.x - TEXT_PAD_SIZE, top.y + TEXT_PAD_SIZE);
@@ -356,16 +371,17 @@ function drawUnaryFuncNode(node: ast.ASTNode) {
   bound.tl.x += v.FUNC_ARG_SIZE;
   bound.bl.x += v.FUNC_ARG_SIZE;
   drawFuncBoundary(bound);
-  text_format("func", c.INVERSE);
   let cent = findCenter(label_bound);
   switch (node.type) {
     case "MorphInv": {
       draw(node.on);
-      ctx.fillText(c.INVERSE, cent.x, cent.y);
+      text_format("func", c.INVERSE);
+      ctx.fillText(c.INVERSE_RENDER, cent.x, cent.y);
       break;
     }
     case "MorphDagger": {
       draw(node.f);
+      text_format("func", c.DAGGER);
       ctx.fillText(c.DAGGER, cent.x, cent.y);
       break;
     }
@@ -655,20 +671,20 @@ function formatCanvas() {
 // // //   URL.revokeObjectURL(svgUrl);
 // // // }
 
-// // function downloadPNG() {
-// //   canvas.toBlob(function (blob) {
-// //     const downloadLink = document.createElement("a");
-// //     downloadLink.href = URL.createObjectURL(blob!);
-// //     downloadLink.download = "canvas.png";
-// //     downloadLink.click();
-// //   }, "image/png");
-// // }
+function downloadPNG() {
+  canvas.toBlob(function (blob) {
+    const downloadLink = document.createElement("a");
+    downloadLink.href = URL.createObjectURL(blob!);
+    downloadLink.download = "canvas.png";
+    downloadLink.click();
+  }, "image/png");
+}
 
 // // // const downloadButtonSvg = document.getElementById("download-button-svg");
 // // // downloadButtonSvg!.addEventListener("click", downloadSVG);
 
-// // const downloadButtonPng = document.getElementById("download-button-png");
-// // downloadButtonPng!.addEventListener("click", downloadPNG);
+const downloadButtonPng = document.getElementById("download-button-png");
+downloadButtonPng!.addEventListener("click", downloadPNG);
 
 window.addEventListener("message", render);
 

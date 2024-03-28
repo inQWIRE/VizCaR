@@ -33,11 +33,11 @@ export function getCanvasHtml(
       <script>var exports = {};</script>
       <script defer type="text/javascript" nonce="${nonce}" src="${scriptUri}""></script>  </head>
   <body>
-       <canvas id="canvas" width="1024"></canvas>
+       <button id="download-button-png">Download PNG</button>
+       <canvas id="canvas" style="max-height: 300px; width: auto;"></canvas>
   </body>
   </html>
 `;
   return html;
 }
 
-// <button id="download-button-png">Download PNG</button>

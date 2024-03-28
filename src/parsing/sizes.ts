@@ -56,7 +56,7 @@ export function addSizes(node: ast.ASTNode): ast.ASTNode {
       on_node = addSizes(on_node);
       on_node = addSizes(on_node);
       if (on_node.hor_len !== undefined && on_node.ver_len !== undefined) {
-        node.hor_len += on_node.hor_len + FUNC_ARG_SIZE;
+        node.hor_len += on_node.hor_len + FUNC_ARG_SIZE + 2 * PAD_SIZE;
         +2 * PAD_SIZE;
         node.ver_len += on_node.ver_len + 2 * PAD_SIZE;
       }
@@ -110,7 +110,7 @@ export function addSizes(node: ast.ASTNode): ast.ASTNode {
       let f_node: ast.ASTNode = node.f;
       f_node = addSizes(f_node);
       if (f_node.hor_len !== undefined && f_node.ver_len !== undefined) {
-        node.hor_len += f_node.hor_len + FUNC_ARG_SIZE;
+        node.hor_len += f_node.hor_len + FUNC_ARG_SIZE + 2 * PAD_SIZE;
         +2 * PAD_SIZE;
         node.ver_len += f_node.ver_len + 2 * PAD_SIZE;
       }

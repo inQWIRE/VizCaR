@@ -45,3 +45,4 @@ export const LEFT_UNITOR_RENDER = "λ";
 export const RIGHT_UNITOR_RENDER = "ρ";
 export const BRAID_RENDER = "×";
 export const ASSOCIATOR_RENDER = "α";
+export const INVERSE_RENDER = "-1";

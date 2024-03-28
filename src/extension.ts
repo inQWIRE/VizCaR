@@ -92,7 +92,7 @@ function renderCallback(context: vscode.ExtensionContext, expr: any) {
     "VizCaR",
     `VizCaR: ${expr.ty}`,
     {
-      viewColumn: vscode.ViewColumn.Three,
+      viewColumn: vscode.ViewColumn.Two,
       preserveFocus: true,
     },
     {
