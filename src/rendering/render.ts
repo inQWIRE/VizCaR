@@ -230,21 +230,21 @@ function drawBraidNode(node: ast.ASTNode) {
       let max_width: number | undefined = undefined;
       ctx.save();
       ctx.beginPath();
-      ctx.moveTo(left.x + 2*v.PAD_SIZE, top.y + 2*v.PAD_SIZE);
-      ctx.lineTo(right.x - 2*v.PAD_SIZE, bottom.y - 2*v.PAD_SIZE);
+      ctx.moveTo(left.x + 2 * v.PAD_SIZE, top.y + 2 * v.PAD_SIZE);
+      ctx.lineTo(right.x - 2 * v.PAD_SIZE, bottom.y - 2 * v.PAD_SIZE);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
       ctx.restore();
       ctx.save();
       ctx.beginPath();
-      ctx.moveTo(right.x - 2*v.PAD_SIZE, top.y + 2*v.PAD_SIZE);
-      ctx.lineTo(left.x + 2*v.PAD_SIZE, bottom.y - 2*v.PAD_SIZE);
+      ctx.moveTo(right.x - 2 * v.PAD_SIZE, top.y + 2 * v.PAD_SIZE);
+      ctx.lineTo(left.x + 2 * v.PAD_SIZE, bottom.y - 2 * v.PAD_SIZE);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
       ctx.restore();
-      
+
       // top right output
       ctx.save();
       ctx.translate(right.x - TEXT_PAD_SIZE, top.y + TEXT_PAD_SIZE);
