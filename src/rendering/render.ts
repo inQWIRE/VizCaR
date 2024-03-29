@@ -435,13 +435,13 @@ function drawBaseNodeMorph(node: ast.ASTNode) {
           break;
         }
         case "LeftUnitor": {
-          inp = "I ".concat(c.COMPOSE).concat(" ").concat(node_.a.as_text);
+          inp = "I ".concat(c.OBJ_TENSOR).concat(" ").concat(node_.a.as_text);
           outp = node_.a.as_text;
           label = c.LEFT_UNITOR_RENDER.concat(" ").concat(node_.a.as_text);
           break;
         }
         case "RightUnitor": {
-          inp = node_.a.as_text.concat(" ").concat(c.COMPOSE).concat(" I");
+          inp = node_.a.as_text.concat(" ").concat(c.OBJ_TENSOR).concat(" I");
           outp = node_.a.as_text;
           label = c.RIGHT_UNITOR_RENDER.concat(" ").concat(node_.a.as_text);
           break;
@@ -450,18 +450,18 @@ function drawBaseNodeMorph(node: ast.ASTNode) {
           inp = "("
             .concat(node_.a.as_text)
             .concat(" ")
-            .concat(c.COMPOSE)
+            .concat(c.OBJ_TENSOR)
             .concat(node_.b.as_text)
             .concat(") ")
-            .concat(c.COMPOSE)
+            .concat(c.OBJ_TENSOR)
             .concat(" ")
             .concat(node_.m.as_text);
           outp = node_.a.as_text
             .concat(" ")
-            .concat(c.COMPOSE)
+            .concat(c.OBJ_TENSOR)
             .concat(" (")
             .concat(node_.b.as_text)
-            .concat(c.COMPOSE)
+            .concat(c.OBJ_TENSOR)
             .concat(" ")
             .concat(node_.m.as_text)
             .concat(") ");

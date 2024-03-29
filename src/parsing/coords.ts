@@ -208,7 +208,7 @@ export function addCoords(node: ast.ASTNode, boundary: quad): ast.ASTNode {
     }
     case "MorphTensor": {
       let l_ver = node.l.ver_len!;
-      let r_ver = node.l.ver_len!;
+      let r_ver = node.r.ver_len!;
       node.boundary = makeAtCenter(
         findCenter(boundary),
         node.hor_len!,

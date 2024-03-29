@@ -32,9 +32,9 @@ export function activate(context: vscode.ExtensionContext) {
     "vizcar.lspRender",
     (expr) => {
       renderCallback(context, expr);
-      vscode.window.showInformationMessage(
-        "Automatic rendering is now turned on."
-      );
+      // vscode.window.showInformationMessage(
+      //   "Automatic rendering is now turned on."
+      // );
     }
   );
   context.subscriptions.push(disposable);
@@ -80,9 +80,9 @@ function renderCallback(context: vscode.ExtensionContext, expr: any) {
     // if (e instanceof Error) {
     //   console.log(e.stack);
     // }
-    vscode.window.showErrorMessage(
-      `Error rendering your expression (${expr}): ${e}`
-    );
+    // vscode.window.showErrorMessage(
+    //   `Error rendering your expression (${expr}): ${e}`
+    // );
     return;
   }
   if (openWebview !== undefined) {
