@@ -518,7 +518,7 @@ function drawBaseNodeMorph(node: ast.ASTNode) {
     ctx.translate(right.x - TEXT_PAD_SIZE, right.y);
     max_width = undefined;
     if (outp.length > 2) {
-      ctx.rotate(-Math.PI / 2);
+      ctx.rotate(Math.PI / 2);
       max_width = node.ver_len! - 2 * TEXT_PAD_SIZE;
     }
     text_format("in_out", outp);
