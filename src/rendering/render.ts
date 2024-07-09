@@ -69,7 +69,6 @@ function drawFuncBoundary(boundary: quad) {
   ctx.stroke();
   ctx.fill();
 
-  ctx.strokeStyle = white;
   ctx.moveTo(boundary.tr.x - v.PAD_SIZE, boundary.tr.y);
   ctx.lineTo(boundary.tr.x, boundary.tr.y);
   ctx.lineTo(boundary.br.x, boundary.br.y);
@@ -82,7 +81,6 @@ function drawFuncBoundary(boundary: quad) {
   ctx.lineTo(boundary.br.x, boundary.br.y);
   ctx.lineTo(boundary.tr.x, boundary.tr.y);
   ctx.fill();
-
   return;
 }
 
