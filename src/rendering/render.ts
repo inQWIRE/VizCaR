@@ -32,7 +32,11 @@ const white_trans = "rgba(255, 255, 255, 0.5)";
 // canvas.height = CANVAS_HEIGHT;
 // canvas_format();
 
-function drawBoundary(boundary: quad, dash?: [number, number]) {
+function drawBoundary(
+  boundary: quad,
+  dash?: [number, number],
+  color: string = white
+) {
   if (dash !== undefined) {
     ctx.setLineDash(dash);
   } else {
@@ -40,6 +44,7 @@ function drawBoundary(boundary: quad, dash?: [number, number]) {
   }
   ctx.lineWidth = v.LINE_WIDTH;
   ctx.strokeStyle = black;
+  ctx.fillStyle = color;
   ctx.beginPath();
   ctx.moveTo(boundary.tl.x, boundary.tl.y);
   ctx.lineTo(boundary.tr.x, boundary.tr.y);
@@ -47,11 +52,13 @@ function drawBoundary(boundary: quad, dash?: [number, number]) {
   ctx.lineTo(boundary.bl.x, boundary.bl.y);
   ctx.closePath();
   ctx.stroke();
+  ctx.fill();
   return;
 }
 
 function drawFuncBoundary(boundary: quad) {
   ctx.setLineDash([]);
+  ctx.fillStyle = white;
   ctx.strokeStyle = black;
   ctx.lineWidth = v.LINE_WIDTH;
   ctx.beginPath();
@@ -60,13 +67,22 @@ function drawFuncBoundary(boundary: quad) {
   ctx.lineTo(boundary.bl.x, boundary.bl.y);
   ctx.lineTo(boundary.bl.x + v.PAD_SIZE, boundary.bl.y);
   ctx.stroke();
+  ctx.fill();
 
-  // ctx.strokeStyle = black;
+  ctx.strokeStyle = white;
   ctx.moveTo(boundary.tr.x - v.PAD_SIZE, boundary.tr.y);
   ctx.lineTo(boundary.tr.x, boundary.tr.y);
   ctx.lineTo(boundary.br.x, boundary.br.y);
   ctx.lineTo(boundary.br.x - v.PAD_SIZE, boundary.br.y);
   ctx.stroke();
+  ctx.fill();
+
+  ctx.moveTo(boundary.tl.x, boundary.tl.y);
+  ctx.lineTo(boundary.bl.x, boundary.bl.y);
+  ctx.lineTo(boundary.br.x, boundary.br.y);
+  ctx.lineTo(boundary.tr.x, boundary.tr.y);
+  ctx.fill();
+
   return;
 }
 
@@ -204,11 +220,11 @@ function text_format(loc: string, text: string) {
   }
 }
 
-function drawBraidNode(node: ast.ASTNode) {
+function drawBraidNode(node: ast.ASTNode, color: string) {
   if (node.type === "Isomorphism") {
     if (node.i.type === "Braiding") {
       let node_ = node.i;
-      ctx.fillStyle = white;
+      ctx.fillStyle = color;
       ctx.setLineDash([]);
       ctx.lineWidth = ISO_LINE_WIDTH;
       ctx.strokeStyle = black;
@@ -331,21 +347,22 @@ function drawBraidNode(node: ast.ASTNode) {
       ctx.restore();
     }
   }
+  ctx.fillStyle = white;
 }
 
 function drawComposeNode(node: ast.ASTNode) {
   if (node.type === "MorphCompose") {
+    drawBoundary(node.boundary!, v.COMPOSE_DASH, c.COLOR_DICT[node.index]);
     draw(node.l);
     draw(node.r);
-    drawBoundary(node.boundary!, v.COMPOSE_DASH);
   }
 }
 
 function drawTensorNode(node: ast.ASTNode) {
   if (node.type === "MorphTensor") {
+    drawBoundary(node.boundary!, v.TENSOR_DASH, c.COLOR_DICT[node.index]);
     draw(node.l);
     draw(node.r);
-    drawBoundary(node.boundary!, v.TENSOR_DASH);
   }
 }
 
@@ -392,8 +409,8 @@ function drawUnaryFuncNode(node: ast.ASTNode) {
   }
 }
 
-function drawBaseNodeMorph(node: ast.ASTNode) {
-  ctx.fillStyle = white;
+function drawBaseNodeMorph(node: ast.ASTNode, color: string) {
+  ctx.fillStyle = color;
   ctx.setLineDash([]);
   ctx.lineWidth = LINE_WIDTH;
   if (node.type === "Isomorphism") {
@@ -555,9 +572,10 @@ function drawBaseNodeMorph(node: ast.ASTNode) {
     ctx.fillText(inp, 0, 0, max_width);
     ctx.restore();
   }
+  ctx.fillStyle = white;
 }
 
-function draw(node: ast.ASTNode) {
+function draw(node: ast.ASTNode, color: string = white) {
   console.log("drawing ", node.type);
   switch (node.type) {
     case "MorphEquiv": {
@@ -565,11 +583,11 @@ function draw(node: ast.ASTNode) {
       break;
     }
     case "MorphVar": {
-      drawBaseNodeMorph(node);
+      drawBaseNodeMorph(node, white);
       break;
     }
     case "MorphId": {
-      drawBaseNodeMorph(node);
+      drawBaseNodeMorph(node, white);
       break;
     }
     case "MorphInv": {
@@ -592,23 +610,23 @@ function draw(node: ast.ASTNode) {
       let node_ = node.i as ast.Isomorph;
       switch (node_.type) {
         case "IsomorphVar": {
-          drawBaseNodeMorph(node);
+          drawBaseNodeMorph(node, color);
           break;
         }
         case "LeftUnitor": {
-          drawBaseNodeMorph(node);
+          drawBaseNodeMorph(node, color);
           break;
         }
         case "RightUnitor": {
-          drawBaseNodeMorph(node);
+          drawBaseNodeMorph(node, color);
           break;
         }
         case "Associator": {
-          drawBaseNodeMorph(node);
+          drawBaseNodeMorph(node, color);
           break;
         }
         case "Braiding": {
-          drawBraidNode(node);
+          drawBraidNode(node, color);
           break;
         }
         default: {

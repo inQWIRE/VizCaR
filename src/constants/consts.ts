@@ -46,3 +46,14 @@ export const RIGHT_UNITOR_RENDER = "ρ";
 export const BRAID_RENDER = "×";
 export const ASSOCIATOR_RENDER = "α";
 export const INVERSE_RENDER = "-1";
+
+export const COLOR_DICT = [
+  "#ffada",
+  "#ffd6a5",
+  "#fdffb6",
+  "#caffbf",
+  "#9bf6ff",
+  "#a0c4ff",
+  "#bdb2ff",
+  "#ffc6ff",
+];

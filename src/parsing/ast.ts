@@ -98,6 +98,7 @@ export type Morph =
       hor_len?: number;
       ver_len?: number;
       boundary?: quad;
+      index: number;
     }
   | {
       type: "MorphTensor";
@@ -106,6 +107,7 @@ export type Morph =
       hor_len?: number;
       ver_len?: number;
       boundary?: quad;
+      index: number;
     }
   | {
       type: "MorphDagger";

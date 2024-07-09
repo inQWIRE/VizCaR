@@ -22,7 +22,11 @@ import { lexerWithPrettyPrinter } from "./lexer";
 import assert = require("assert");
 
 type Token = psec.Token<lex.TokenKind>;
+let index = 0;
 
+function incrIndex() {
+  return index++ % 8;
+}
 export function parseAST(expr: any): ASTNode {
   Γ = context(expr.hyps);
   console.log("ctx: ", Γ);
@@ -247,6 +251,7 @@ function applyMorphismCompose(
       type: "MorphCompose",
       l,
       r,
+      index: incrIndex(),
     };
   }
   return undefined;
@@ -261,6 +266,7 @@ function applyMorphismTensor(
       type: "MorphTensor",
       l,
       r,
+      index: incrIndex(),
     };
   }
   return undefined;

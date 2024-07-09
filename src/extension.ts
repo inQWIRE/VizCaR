@@ -31,6 +31,7 @@ export function activate(context: vscode.ExtensionContext) {
   let disposable = vscode.commands.registerCommand(
     "vizcar.lspRender",
     (expr) => {
+      console.log("expr: ", expr);
       renderCallback(context, expr);
       // vscode.window.showInformationMessage(
       //   "Automatic rendering is now turned on."
@@ -38,6 +39,10 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
   context.subscriptions.push(disposable);
+  let coqLspApi = vscode.extensions.getExtension("ejgallego.coq-lsp")!.exports;
+  let hook = coqLspApi.onUserGoals((goals: any) =>
+    vscode.commands.executeCommand("vizcar.lspRender", goals)
+  );
   disposable = vscode.commands.registerCommand(
     "vizcar.deactivateRendering",
     () => {
@@ -45,6 +50,7 @@ export function activate(context: vscode.ExtensionContext) {
       vscode.window.showInformationMessage(
         "Automatic rendering is now turned off."
       );
+      hook.dispose();
     }
   );
   context.subscriptions.push(disposable);
@@ -77,12 +83,12 @@ function renderCallback(context: vscode.ExtensionContext, expr: any) {
     setCanvasWidthHeight(size);
     node = coord.addCoords(node, boundary);
   } catch (e) {
-    // if (e instanceof Error) {
-    //   console.log(e.stack);
-    // }
-    // vscode.window.showErrorMessage(
-    //   `Error rendering your expression (${expr}): ${e}`
-    // );
+    if (e instanceof Error) {
+      console.log(e.stack);
+    }
+    vscode.window.showErrorMessage(
+      `Error rendering your expression (${expr}): ${e}`
+    );
     return;
   }
   if (openWebview !== undefined) {
@@ -115,4 +121,6 @@ function renderCallback(context: vscode.ExtensionContext, expr: any) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+  // hook.dispose();
+}
