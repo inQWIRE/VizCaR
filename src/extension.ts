@@ -28,8 +28,11 @@ export function activate(context: vscode.ExtensionContext) {
   //     .then((expr) => renderCallback(context, expr));
   // });
   // context.subscriptions.push(disposable);
+let vizcarConfig = vscode.workspace.getConfiguration('vizcar');
+let colors = vizcarConfig.get!('colorScheme') as string [];
+console.log("colors: \n", colors);
   let disposable = vscode.commands.registerCommand(
-    "vizcar.lspRender",
+    "vizcar.activate",
     (expr) => {
       console.log("expr: ", expr);
       renderCallback(context, expr);
@@ -41,10 +44,10 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(disposable);
   let coqLspApi = vscode.extensions.getExtension("ejgallego.coq-lsp")!.exports;
   let hook = coqLspApi.onUserGoals((goals: any) =>
-    vscode.commands.executeCommand("vizcar.lspRender", goals)
+    vscode.commands.executeCommand("vizcar.activate", goals)
   );
   disposable = vscode.commands.registerCommand(
-    "vizcar.deactivateRendering",
+    "vizcar.deactivate",
     () => {
       deactivate();
       vscode.window.showInformationMessage(

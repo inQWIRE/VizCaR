@@ -27,6 +27,18 @@ export let CAST_DASH: [number, number] = [0.02 * SCALE, 0.02 * SCALE];
 export let MORPH_EQUIV_DASH: [number, number] = [0.005 * SCALE, 0.005 * SCALE];
 export let FUNCTION_DASH: [number, number] = [0.03 * SCALE, 0.01 * SCALE];
 
+export let COLOR_DICT : Array<string> = [
+  "#ffe2db",
+  "#ffeae5",
+  "#d9f4fd",
+  "#c1e8f5",
+  "#a8dded",
+  "#f7d0fb",
+  "#fbdefd",
+  "#ffffc8",
+  "#ffffb0"
+];
+
 export let boundary = {
   tl: {
     x: 0,

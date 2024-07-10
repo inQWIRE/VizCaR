@@ -2,7 +2,7 @@
   "name": "vizcar",
   "displayName": "ViZCaR",
   "description": "Visualizer for ViCaR",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "repository": "https://github.com/inQWIRE/VizCaR/",
   "publisher": "inQWIRE",
   "engines": {
@@ -18,10 +18,37 @@
   "contributes": {
     "commands": [
       {
-        "command": "vizcar.lspRender",
-        "title": "vizcar: Activate: Render expressions with vizcar using CoqLSP information"
+        "command": "vizcar.activate",
+        "title": "vizcar: activate: Start rendering expressions with vizcar automatically."
+      },
+      {
+        "command": "vizcar.deactivate",
+        "title": "vizcar: deactivate: Stop rendering expressions with vizcar automatically."
       }
-    ]
+    ],
+     "configuration": {
+      "title": "VizCAR",
+      "properties": {
+        "vizcar.colorScheme": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "#ffe2db",
+            "#ffeae5",
+            "#d9f4fd",
+            "#c1e8f5",
+            "#a8dded",
+            "#f7d0fb",
+            "#fbdefd",
+            "#ffffc8",
+            "#ffffb0"
+          ], 
+          "description": "Provide your preferred color scheme, as an array of hex codes."
+        }
+      }
+     }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile & npm run package",

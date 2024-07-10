@@ -17,6 +17,7 @@ let _ = require("lodash");
 
 import { CatObject, Isomorph, Morph, Prop, ASTNode } from "./ast";
 import * as c from "../constants/consts";
+import * as v from "../constants/variableconsts";
 import * as lex from "./lexer";
 import { lexerWithPrettyPrinter } from "./lexer";
 import assert = require("assert");
@@ -25,7 +26,7 @@ type Token = psec.Token<lex.TokenKind>;
 let index = 0;
 
 function incrIndex() {
-  return index++ % 8;
+  return index++ % v.COLOR_DICT.length;
 }
 export function parseAST(expr: any): ASTNode {
   Γ = context(expr.hyps);

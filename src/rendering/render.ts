@@ -23,10 +23,7 @@ ctx.lineWidth = v.LINE_WIDTH;
 // // colors
 const white = "#FFFFFF";
 const black = "#000000";
-const red = "#FFA4A4";
-const green = "#A4FFA4";
 const gray = "#303030";
-const white_trans = "rgba(255, 255, 255, 0.5)";
 // just for testing
 // canvas.width = CANVAS_WIDTH;
 // canvas.height = CANVAS_HEIGHT;
@@ -350,7 +347,7 @@ function drawBraidNode(node: ast.ASTNode, color: string) {
 
 function drawComposeNode(node: ast.ASTNode) {
   if (node.type === "MorphCompose") {
-    drawBoundary(node.boundary!, v.COMPOSE_DASH, c.COLOR_DICT[node.index]);
+    drawBoundary(node.boundary!, v.COMPOSE_DASH, v.COLOR_DICT[node.index]);
     draw(node.l);
     draw(node.r);
   }
@@ -358,7 +355,7 @@ function drawComposeNode(node: ast.ASTNode) {
 
 function drawTensorNode(node: ast.ASTNode) {
   if (node.type === "MorphTensor") {
-    drawBoundary(node.boundary!, v.TENSOR_DASH, c.COLOR_DICT[node.index]);
+    drawBoundary(node.boundary!, v.TENSOR_DASH, v.COLOR_DICT[node.index]);
     draw(node.l);
     draw(node.r);
   }
