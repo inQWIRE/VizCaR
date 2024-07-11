@@ -26,12 +26,17 @@ type Token = psec.Token<lex.TokenKind>;
 let index = 0;
 
 function incrIndex() {
-  return index++ % v.COLOR_DICT.length;
+  console.log("incrementing index: ", index + 1);
+  console.log("length of dict at incr index: ", v.getColorDictLength());
+  let r = index;
+  index = ++index % v.getColorDictLength();
+  return r;
 }
+
 export function parseAST(expr: any): ASTNode {
   Γ = context(expr.hyps);
   console.log("ctx: ", Γ);
-  lexerWithPrettyPrinter(expr.ty);
+  // lexerWithPrettyPrinter(expr.ty);
   let parsed = PROP.parse(lex.lexer.parse(expr.ty));
   if (parsed.successful) {
     let parsed_candidates_2 = parsed.candidates.filter(
@@ -311,6 +316,14 @@ MORPH_L34.setPattern(
       MORPH_L25
     ),
     applyMorphismTensor
+  )
+);
+
+MORPH_L40.setPattern(
+  lrec_sc(
+    MORPH_L34,
+    kright(tok(lex.TokenKind.ComposeToken), MORPH_L34),
+    applyMorphismCompose
   )
 );
 

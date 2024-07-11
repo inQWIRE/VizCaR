@@ -12,13 +12,12 @@ import { getCanvasHtml } from "./webview/webview";
 // import { getCanvasHtml } from "./webview/webview";
 
 let openWebview: vscode.WebviewPanel | undefined = undefined;
-
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
-  console.log('Congratulations, your extension "VizCaR" is now active!');
+  // console.log('Congratulations, your extension "VizCaR" is now active!');
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
   // // The commandId parameter must match the command field in package.json
@@ -28,13 +27,14 @@ export function activate(context: vscode.ExtensionContext) {
   //     .then((expr) => renderCallback(context, expr));
   // });
   // context.subscriptions.push(disposable);
-let vizcarConfig = vscode.workspace.getConfiguration('vizcar');
-let colors = vizcarConfig.get!('colorScheme') as string [];
-console.log("colors: \n", colors);
+  let vizcarConfig = vscode.workspace.getConfiguration("vizcar");
+  let colors = vizcarConfig.get("colorScheme") as string[];
+  vconsts.updateColorDict(JSON.parse(JSON.stringify(colors)));
+
   let disposable = vscode.commands.registerCommand(
     "vizcar.activate",
     (expr) => {
-      console.log("expr: ", expr);
+      // console.log("expr: ", expr);
       renderCallback(context, expr);
       // vscode.window.showInformationMessage(
       //   "Automatic rendering is now turned on."
@@ -46,25 +46,22 @@ console.log("colors: \n", colors);
   let hook = coqLspApi.onUserGoals((goals: any) =>
     vscode.commands.executeCommand("vizcar.activate", goals)
   );
-  disposable = vscode.commands.registerCommand(
-    "vizcar.deactivate",
-    () => {
-      deactivate();
-      vscode.window.showInformationMessage(
-        "Automatic rendering is now turned off."
-      );
-      hook.dispose();
-    }
-  );
+  disposable = vscode.commands.registerCommand("vizcar.deactivate", () => {
+    deactivate();
+    vscode.window.showInformationMessage(
+      "Automatic rendering is now turned off."
+    );
+    hook.dispose();
+  });
   context.subscriptions.push(disposable);
 }
 
 function renderCallback(context: vscode.ExtensionContext, expr: any) {
   if (expr === undefined) {
-    console.log("no expression to be rendered");
+    // console.log("no expression to be rendered");
     return;
   }
-  console.log("expr whole: ", expr);
+  // console.log("expr whole: ", expr);
   // extract correct field from lsp information
   // let goal = expr.goals.goals[0].ty.toString();
   // let hyps = expr.goals.goals[0].hyps;
@@ -76,12 +73,12 @@ function renderCallback(context: vscode.ExtensionContext, expr: any) {
   // console.log("---------LEXED------------");
   // lex.lexerPrettyPrinter(expr);
   // console.log("---------LEXED------------");
-  console.log("expr.goals.goals[0]: ", expr);
+  // console.log("expr.goals.goals[0]: ", expr);
   let node: ast.ASTNode;
   try {
     node = parser.parseAST(expr);
     node = sizer.addSizes(node);
-    console.log("sized node: ", node);
+    // console.log("sized node: ", node);
     const size = sizer.determineCanvasWidthHeight(node);
     setCanvasWidthHeight(size);
     node = coord.addCoords(node, boundary);
@@ -111,7 +108,7 @@ function renderCallback(context: vscode.ExtensionContext, expr: any) {
   );
   panel.onDidDispose(
     async () => {
-      console.log("openWebview before: ", openWebview);
+      // console.log("openWebview before: ", openWebview);
       openWebview = undefined;
     },
     null,
@@ -120,7 +117,10 @@ function renderCallback(context: vscode.ExtensionContext, expr: any) {
   openWebview = panel;
   panel.webview.html = getCanvasHtml(panel, context);
   panel.webview.onDidReceiveMessage((msg) => console.log(msg));
-  panel.webview.postMessage({ command: JSON.stringify(node) });
+  panel.webview.postMessage({
+    command: JSON.stringify(node),
+    colors: JSON.stringify(vconsts.COLOR_DICT),
+  });
 }
 
 // this method is called when your extension is deactivated

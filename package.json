@@ -26,7 +26,7 @@
         "title": "vizcar: deactivate: Stop rendering expressions with vizcar automatically."
       }
     ],
-     "configuration": {
+    "configuration": {
       "title": "VizCAR",
       "properties": {
         "vizcar.colorScheme": {
@@ -44,11 +44,11 @@
             "#fbdefd",
             "#ffffc8",
             "#ffffb0"
-          ], 
+          ],
           "description": "Provide your preferred color scheme, as an array of hex codes."
         }
       }
-     }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile & npm run package",

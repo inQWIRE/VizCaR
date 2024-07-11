@@ -27,17 +27,7 @@ export let CAST_DASH: [number, number] = [0.02 * SCALE, 0.02 * SCALE];
 export let MORPH_EQUIV_DASH: [number, number] = [0.005 * SCALE, 0.005 * SCALE];
 export let FUNCTION_DASH: [number, number] = [0.03 * SCALE, 0.01 * SCALE];
 
-export let COLOR_DICT : Array<string> = [
-  "#ffe2db",
-  "#ffeae5",
-  "#d9f4fd",
-  "#c1e8f5",
-  "#a8dded",
-  "#f7d0fb",
-  "#fbdefd",
-  "#ffffc8",
-  "#ffffb0"
-];
+export let COLOR_DICT: Array<string> = [];
 
 export let boundary = {
   tl: {
@@ -57,6 +47,23 @@ export let boundary = {
     y: CANVAS_HEIGHT,
   },
 };
+
+export function updateColorDict(newDict: Array<string>) {
+  console.log("pre update in update: ", COLOR_DICT);
+  if (COLOR_DICT !== undefined) {
+    while (COLOR_DICT.pop() !== undefined) {}
+  }
+  let w = JSON.parse(JSON.stringify(newDict.pop()));
+  while (w !== undefined) {
+    COLOR_DICT.push(JSON.parse(JSON.stringify(w)));
+    w = newDict.pop();
+  }
+  console.log("post update in update: ", COLOR_DICT);
+}
+
+export function getColorDictLength() {
+  return COLOR_DICT.length;
+}
 
 export function setCanvasWidthHeight(wh: [number, number]) {
   CANVAS_WIDTH = wh[0];

@@ -1,5 +1,6 @@
 import * as ast from "../parsing/ast";
 import * as c from "../constants/consts";
+import * as vscode from "vscode";
 import * as v from "../constants/variableconsts";
 import {
   findBottomCenter,
@@ -34,6 +35,7 @@ function drawBoundary(
   dash?: [number, number],
   color: string = white
 ) {
+  console.log("draw boundary color: ", color);
   if (dash !== undefined) {
     ctx.setLineDash(dash);
   } else {
@@ -215,7 +217,8 @@ function text_format(loc: string, text: string) {
   }
 }
 
-function drawBraidNode(node: ast.ASTNode, color: string) {
+function drawBraidNode(node: ast.ASTNode, colors: string[], color: string) {
+  console.log("draw braid color: ", color);
   if (node.type === "Isomorphism") {
     if (node.i.type === "Braiding") {
       let node_ = node.i;
@@ -345,26 +348,27 @@ function drawBraidNode(node: ast.ASTNode, color: string) {
   ctx.fillStyle = white;
 }
 
-function drawComposeNode(node: ast.ASTNode) {
+function drawComposeNode(node: ast.ASTNode, colors: string[]) {
   if (node.type === "MorphCompose") {
-    drawBoundary(node.boundary!, v.COMPOSE_DASH, v.COLOR_DICT[node.index]);
-    draw(node.l);
-    draw(node.r);
+    console.log("drawing compose with color: ", colors[node.index]);
+    drawBoundary(node.boundary!, v.COMPOSE_DASH, colors[node.index]);
+    draw(node.l, colors);
+    draw(node.r, colors);
   }
 }
 
-function drawTensorNode(node: ast.ASTNode) {
+function drawTensorNode(node: ast.ASTNode, colors: string[]) {
   if (node.type === "MorphTensor") {
-    drawBoundary(node.boundary!, v.TENSOR_DASH, v.COLOR_DICT[node.index]);
-    draw(node.l);
-    draw(node.r);
+    drawBoundary(node.boundary!, v.TENSOR_DASH, colors[node.index]);
+    draw(node.l, colors);
+    draw(node.r, colors);
   }
 }
 
-function drawEquivNode(node: ast.ASTNode) {
+function drawEquivNode(node: ast.ASTNode, colors: string[]) {
   if (node.type === "MorphEquiv") {
-    draw(node.l);
-    draw(node.r);
+    draw(node.l, colors);
+    draw(node.r, colors);
     text_format("equiv", c.MORPH_EQUIV);
     ctx.fillText(
       c.MORPH_EQUIV,
@@ -374,7 +378,7 @@ function drawEquivNode(node: ast.ASTNode) {
   }
 }
 
-function drawUnaryFuncNode(node: ast.ASTNode) {
+function drawUnaryFuncNode(node: ast.ASTNode, colors: string[]) {
   let label_bound = JSON.parse(JSON.stringify(node.boundary!));
   label_bound.tr.x = label_bound.tl.x + v.FUNC_ARG_SIZE;
   label_bound.br.x = label_bound.bl.x + v.FUNC_ARG_SIZE;
@@ -386,13 +390,13 @@ function drawUnaryFuncNode(node: ast.ASTNode) {
   let cent = findCenter(label_bound);
   switch (node.type) {
     case "MorphInv": {
-      draw(node.on);
+      draw(node.on, colors);
       text_format("func", c.INVERSE);
       ctx.fillText(c.INVERSE_RENDER, cent.x, cent.y);
       break;
     }
     case "MorphDagger": {
-      draw(node.f);
+      draw(node.f, colors);
       text_format("func", c.DAGGER);
       ctx.fillText(c.DAGGER, cent.x, cent.y);
       break;
@@ -404,7 +408,7 @@ function drawUnaryFuncNode(node: ast.ASTNode) {
   }
 }
 
-function drawBaseNodeMorph(node: ast.ASTNode, color: string) {
+function drawBaseNodeMorph(node: ast.ASTNode, colors: string[], color: string) {
   ctx.fillStyle = color;
   ctx.setLineDash([]);
   ctx.lineWidth = LINE_WIDTH;
@@ -417,7 +421,7 @@ function drawBaseNodeMorph(node: ast.ASTNode, color: string) {
   let label: string;
   switch (node.type) {
     case "MorphVar": {
-      console.log("drawing MorphVar ", node.name);
+      // console.log("drawing MorphVar ", node.name);
       if (node.inp) {
         inp = node.inp.as_text;
       }
@@ -570,58 +574,58 @@ function drawBaseNodeMorph(node: ast.ASTNode, color: string) {
   ctx.fillStyle = white;
 }
 
-function draw(node: ast.ASTNode, color: string = white) {
-  console.log("drawing ", node.type);
+function draw(node: ast.ASTNode, colors: string[], color: string = white) {
+  // console.log("drawing ", node.type);
   switch (node.type) {
     case "MorphEquiv": {
-      drawEquivNode(node);
+      drawEquivNode(node, colors);
       break;
     }
     case "MorphVar": {
-      drawBaseNodeMorph(node, white);
+      drawBaseNodeMorph(node, colors, white);
       break;
     }
     case "MorphId": {
-      drawBaseNodeMorph(node, white);
+      drawBaseNodeMorph(node, colors, white);
       break;
     }
     case "MorphInv": {
-      drawUnaryFuncNode(node);
+      drawUnaryFuncNode(node, colors);
       break;
     }
     case "MorphCompose": {
-      drawComposeNode(node);
+      drawComposeNode(node, colors);
       break;
     }
     case "MorphTensor": {
-      drawTensorNode(node);
+      drawTensorNode(node, colors);
       break;
     }
     case "MorphDagger": {
-      drawUnaryFuncNode(node);
+      drawUnaryFuncNode(node, colors);
       break;
     }
     case "Isomorphism": {
       let node_ = node.i as ast.Isomorph;
       switch (node_.type) {
         case "IsomorphVar": {
-          drawBaseNodeMorph(node, color);
+          drawBaseNodeMorph(node, colors, color);
           break;
         }
         case "LeftUnitor": {
-          drawBaseNodeMorph(node, color);
+          drawBaseNodeMorph(node, colors, color);
           break;
         }
         case "RightUnitor": {
-          drawBaseNodeMorph(node, color);
+          drawBaseNodeMorph(node, colors, color);
           break;
         }
         case "Associator": {
-          drawBaseNodeMorph(node, color);
+          drawBaseNodeMorph(node, colors, color);
           break;
         }
         case "Braiding": {
-          drawBraidNode(node, color);
+          drawBraidNode(node, colors, color);
           break;
         }
         default: {
@@ -639,18 +643,19 @@ function draw(node: ast.ASTNode, color: string = white) {
 
 function render(this: Window, msg: MessageEvent<any>) {
   let command = msg.data.command;
+  let colors: string[] = JSON.parse(msg.data.colors);
   let node: ast.ASTNode = JSON.parse(command);
   v.setCanvasWidthHeight(determineCanvasWidthHeight(node));
   formatCanvas();
-  draw(node);
+  draw(node, colors);
 }
 
 function formatCanvas() {
-  console.log(
-    "setting width, height in render: ",
-    v.CANVAS_WIDTH,
-    v.CANVAS_HEIGHT
-  );
+  // console.log(
+  //   "setting width, height in render: ",
+  //   v.CANVAS_WIDTH,
+  //   v.CANVAS_HEIGHT
+  // );
   canvas.width = v.CANVAS_WIDTH;
   canvas.height = v.CANVAS_HEIGHT;
   ctx.fillStyle = white;
@@ -702,4 +707,4 @@ downloadButtonPng!.addEventListener("click", downloadPNG);
 window.addEventListener("message", render);
 
 // esbuild auto reload
-new EventSource("/esbuild").addEventListener("change", () => location.reload());
+// new EventSource("/esbuild").addEventListener("change", () => location.reload());
